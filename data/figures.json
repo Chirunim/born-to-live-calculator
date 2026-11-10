@@ -1,0 +1,143 @@
+{
+  "_comment": "Every figure must have source, url, year, and accessed. 'TODO' values need manual verification before launch.",
+
+  "tax": {
+    "_source": "HMRC — Income Tax rates and Personal Allowances",
+    "_url": "https://www.gov.uk/income-tax-rates",
+    "_year": "2024-25",
+    "_accessed": "2026-11-06",
+    "year": "2024-25",
+    "personalAllowance": 12570,
+    "paYearTaperStart": 100000,
+    "paYearTaperEnd": 125140,
+    "ruk": {
+      "_note": "Bands are taxable income above personal allowance",
+      "bands": [
+        { "upto": 37700,  "rate": 0.20, "name": "Basic rate" },
+        { "upto": 125140, "rate": 0.40, "name": "Higher rate" },
+        { "upto": null,   "rate": 0.45, "name": "Additional rate" }
+      ]
+    },
+    "scotland": {
+      "_source": "Scottish Government — Income Tax in Scotland",
+      "_url": "https://www.gov.uk/scottish-income-tax",
+      "_note": "Bands are taxable income above personal allowance",
+      "bands": [
+        { "upto": 2306,   "rate": 0.19, "name": "Starter rate" },
+        { "upto": 13991,  "rate": 0.20, "name": "Scottish Basic rate" },
+        { "upto": 31092,  "rate": 0.21, "name": "Intermediate rate" },
+        { "upto": 62430,  "rate": 0.42, "name": "Higher rate" },
+        { "upto": 112570, "rate": 0.45, "name": "Advanced rate" },
+        { "upto": null,   "rate": 0.48, "name": "Top rate" }
+      ]
+    },
+    "ni": {
+      "_source": "HMRC — National Insurance: rates and categories",
+      "_url": "https://www.gov.uk/national-insurance-rates-letters",
+      "_year": "2024-25",
+      "_note": "Class 1 employee contributions. Same rates for rUK and Scotland.",
+      "primaryThreshold": 12570,
+      "upperEarningsLimit": 50270,
+      "mainRate": 0.08,
+      "upperRate": 0.02
+    }
+  },
+
+  "aid": {
+    "odaTmeRatio": {
+      "_description": "UK Official Development Assistance as a share of Total Managed Expenditure. Used in HMRC Annual Tax Summary methodology to show 'overseas aid' spending line.",
+      "_source": "HMRC — Your taxes and public spending (Annual Tax Summary background notes)",
+      "_url": "https://www.gov.uk/government/publications/your-tax-and-public-spending",
+      "_year": "TODO — use most recent published year",
+      "_accessed": "TODO",
+      "_howToFind": "Download the 'Background information' Excel. Look for the 'Overseas aid' row as a decimal fraction of TME. Use the most recent year available.",
+      "value": "TODO",
+      "low": "TODO",
+      "high": "TODO"
+    },
+    "healthOdaRatio": {
+      "_description": "UK bilateral ODA to health as a share of total gross bilateral ODA. Variable h in the model.",
+      "_source": "FCDO — Statistics on International Development: Final UK Aid Spend",
+      "_url": "https://www.gov.uk/government/collections/statistics-on-international-development",
+      "_year": "TODO — use most recent published year",
+      "_accessed": "TODO",
+      "_howToFind": "Download 'Statistics on International Development' Excel. Table on bilateral ODA by sector. Divide 'Health' sector total by total gross bilateral ODA. Use same year as odaTmeRatio.",
+      "value": "TODO",
+      "low": "TODO",
+      "high": "TODO"
+    },
+    "mnchHealthRatio": {
+      "_description": "Share of UK health ODA going to maternal, newborn and child health, vaccines, and nutrition. Variable c in the model. Used as the Monte Carlo uncertainty range.",
+      "_source": "OECD — Creditor Reporting System (CRS)",
+      "_url": "https://stats.oecd.org/Index.aspx?DataSetCode=CRS1",
+      "_year": "TODO — use most recent published year",
+      "_accessed": "TODO",
+      "_howToFind": "Query CRS online: Donor = United Kingdom, Sector = Health (codes 120, 130). Filter purpose codes: 13010 (Population policy & reproductive health), 13020 (Reproductive health care), 13030 (Family planning), 12191 (Medical services — nutrition), 12220 (Basic health care), 12261 (Health education). Sum disbursements for these codes / total UK health ODA disbursements. Take low/high from 3–5 year range.",
+      "_proposedCrsCodes": ["13010", "13020", "13030", "12191", "12220", "12261"],
+      "value": "TODO",
+      "low": "TODO",
+      "high": "TODO"
+    }
+  },
+
+  "costs": {
+    "_currency": "USD",
+    "_note": "All unit costs in USD. Converted to GBP at runtime using meta.usdGbp.",
+    "vaccineDtp": {
+      "_description": "Cost per dose of pentavalent vaccine (DTP-HepB-Hib) at UNICEF procurement prices.",
+      "_source": "UNICEF Supply Division — Vaccine price data",
+      "_url": "https://www.unicef.org/supply/vaccines",
+      "_year": "2024",
+      "_accessed": "2026-11-06",
+      "_note": "Low reflects minimum UNICEF catalogue price; high includes cold-chain/delivery margin.",
+      "low": 0.75,
+      "high": 2.50,
+      "unit": "USD per dose",
+      "itemLabel": "pentavalent vaccine dose",
+      "itemLabelPlural": "pentavalent vaccine doses"
+    },
+    "bednet": {
+      "_description": "Cost per long-lasting insecticidal net (LLIN) distributed, including logistics.",
+      "_source": "Against Malaria Foundation — Cost per net distributed",
+      "_url": "https://www.againstmalaria.com/Distributions.aspx",
+      "_year": "2023",
+      "_accessed": "2026-11-06",
+      "_note": "AMF publishes audited per-net costs for each distribution. Range covers country variation.",
+      "low": 3.50,
+      "high": 6.00,
+      "unit": "USD per net distributed",
+      "itemLabel": "bednet (LLIN)",
+      "itemLabelPlural": "bednets (LLINs)"
+    },
+    "orsTreatment": {
+      "_description": "Cost per treatment course of oral rehydration salts (ORS) for one diarrhoea episode in a child.",
+      "_source": "UNICEF Supply Division — Essential medicines catalogue",
+      "_url": "https://supply.unicef.org/",
+      "_year": "2024",
+      "_accessed": "2026-11-06",
+      "_note": "One treatment course = approximately 2–3 ORS sachets. Low uses UNICEF catalogue sachet price ×2; high adds delivery margin. TODO: confirm range against published WHO/UNICEF data.",
+      "low": 0.30,
+      "high": 0.80,
+      "unit": "USD per treatment course",
+      "itemLabel": "ORS treatment course",
+      "itemLabelPlural": "ORS treatment courses"
+    }
+  },
+
+  "meta": {
+    "usdGbp": {
+      "_description": "USD to GBP exchange rate used to convert unit costs.",
+      "_source": "Bank of England — Annual average spot exchange rate",
+      "_url": "https://www.bankofengland.co.uk/statistics/exchange-rates",
+      "_year": "2024",
+      "_accessed": "2026-11-06",
+      "_note": "2024 annual average. Update annually.",
+      "value": 0.7874
+    },
+    "petitionUrl": {
+      "_description": "URL for the Born to Live petition on ONE's website.",
+      "_source": "ONE Campaign",
+      "value": "TODO"
+    }
+  }
+}

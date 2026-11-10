@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Methodology — Born to Live Calculator</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, sans-serif;
+      line-height: 1.7;
+      color: #1a1a1a;
+      background: #fff;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3rem;
+    }
+    h1 { font-size: 1.75rem; margin-bottom: 0.5rem; }
+    h2 { font-size: 1.15rem; font-weight: 700; margin: 2rem 0 0.5rem; border-bottom: 1px solid #eee; padding-bottom: 0.25rem; }
+    p  { margin-bottom: 0.75rem; color: #333; }
+    ul { margin: 0.5rem 0 0.75rem 1.25rem; color: #333; }
+    li { margin-bottom: 0.4rem; }
+    code { font-family: monospace; background: #f4f4f4; padding: 0.1em 0.3em; border-radius: 3px; }
+    .formula {
+      background: #f8f8f8;
+      border-left: 3px solid #0057b8;
+      padding: 0.75rem 1rem;
+      margin: 0.75rem 0;
+      font-family: monospace;
+      font-size: 0.95rem;
+    }
+    .source-link { font-size: 0.85rem; color: #0057b8; }
+    .todo-flag { color: #c0392b; font-weight: 600; }
+    .disclaimer {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: #fff8e1;
+      border: 1px solid #f0d060;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+    nav { margin-bottom: 1.5rem; font-size: 0.9rem; }
+    nav a { color: #0057b8; }
+  </style>
+</head>
+<body>
+
+  <nav><a href="index.html">← Back to calculator</a></nav>
+
+  <h1>Methodology &amp; Sources</h1>
+  <p>This page explains every step of the calculation and links to the data behind each figure.
+     All source figures live in <code>data/figures.json</code> in the
+     <a href="https://github.com/Chirunim/born-to-live-calculator">source repository</a>.</p>
+
+  <!-- ------------------------------------------------------------------ -->
+  <h2>Step 1 — Estimating your tax (T)</h2>
+  <p>We calculate two components of your UK tax:</p>
+  <ul>
+    <li><strong>Income Tax</strong> — applied to your taxable income (gross salary minus personal allowance)
+        at the rates for your region (rest-of-UK or Scotland).</li>
+    <li><strong>Employee National Insurance</strong> (Class 1) — applied to earnings above the
+        Primary Threshold at 8%, and above the Upper Earnings Limit at 2%.</li>
+  </ul>
+  <div class="formula">T = Income Tax + National Insurance</div>
+  <p>Figures used:</p>
+  <ul>
+    <li>Personal Allowance: <strong>£12,570</strong> (tapers to £0 above £100,000)
+        — <a class="source-link" href="https://www.gov.uk/income-tax-rates">gov.uk/income-tax-rates</a>, 2024–25</li>
+    <li>rUK Income Tax bands: 20% / 40% / 45%
+        — same source</li>
+    <li>Scottish Income Tax bands: 19% / 20% / 21% / 42% / 45% / 48%
+        — <a class="source-link" href="https://www.gov.uk/scottish-income-tax">gov.uk/scottish-income-tax</a>, 2024–25</li>
+    <li>NI Primary Threshold: <strong>£12,570</strong> · Upper Earnings Limit: <strong>£50,270</strong>
+        · rates: 8% / 2%
+        — <a class="source-link" href="https://www.gov.uk/national-insurance-rates-letters">gov.uk/national-insurance-rates-letters</a>, 2024–25</li>
+  </ul>
+  <p>This is an annual approximation. NI is technically calculated per pay period;
+     using annual salary slightly overstates NI for monthly-paid workers near the thresholds.
+     The difference is small and does not affect the aid-chain result materially.</p>
+
+  <!-- ------------------------------------------------------------------ -->
+  <h2>Step 2 — UK aid as a share of spending (a)</h2>
+  <p>HMRC's Annual Tax Summary shows, for every pound collected, how much goes to each spending
+     area. The "overseas aid" line gives us <strong>a</strong> — the fraction of Total Managed
+     Expenditure that is Official Development Assistance (ODA).</p>
+  <div class="formula">a = UK ODA ÷ Total Managed Expenditure</div>
+  <ul>
+    <li>Source: <a class="source-link" href="https://www.gov.uk/government/publications/your-tax-and-public-spending">
+        HMRC — Your taxes and public spending (Annual Tax Summary background notes)</a></li>
+    <li>Value: <span class="todo-flag" id="val-a">TODO — pending manual verification</span></li>
+  </ul>
+
+  <!-- ------------------------------------------------------------------ -->
+  <h2>Step 3 — Health aid as a share of UK ODA (h)</h2>
+  <p>Not all UK aid goes to health. The FCDO Statistics on International Development
+     breaks bilateral ODA by sector; we take the health sector total as a fraction of
+     gross bilateral ODA.</p>
+  <div class="formula">h = bilateral health ODA ÷ total bilateral ODA</div>
+  <ul>
+    <li>Source: <a class="source-link" href="https://www.gov.uk/government/collections/statistics-on-international-development">
+        FCDO — Statistics on International Development</a></li>
+    <li>Value: <span class="todo-flag" id="val-h">TODO — pending manual verification</span></li>
+  </ul>
+
+  <!-- ------------------------------------------------------------------ -->
+  <h2>Step 4 — Maternal, newborn and child health share (c)</h2>
+  <p>Within health aid, we focus on the sub-sectors most relevant to children: maternal and
+     newborn care, reproductive health, nutrition, and basic primary care. We identify these
+     using OECD Creditor Reporting System (CRS) purpose codes:</p>
+  <ul>
+    <li>13010 — Population policy and reproductive health</li>
+    <li>13020 — Reproductive health care</li>
+    <li>13030 — Family planning</li>
+    <li>12191 — Medical services (nutrition)</li>
+    <li>12220 — Basic health care</li>
+    <li>12261 — Health education</li>
+  </ul>
+  <div class="formula">c = UK disbursements to above codes ÷ total UK health ODA</div>
+  <ul>
+    <li>Source: <a class="source-link" href="https://stats.oecd.org/Index.aspx?DataSetCode=CRS1">
+        OECD — Creditor Reporting System</a></li>
+    <li>Value (central / low / high): <span class="todo-flag" id="val-c">TODO — pending manual verification</span></li>
+    <li>Low and high are taken from the range of annual values over the most recent
+        three to five years, to reflect genuine year-to-year variation in aid priorities.</li>
+  </ul>
+
+  <!-- ------------------------------------------------------------------ -->
+  <h2>Step 5 — Your contribution to child health (C)</h2>
+  <p>Combining steps 1–4:</p>
+  <div class="formula">C = T × a × h × c</div>
+  <p>C is the estimated amount of your tax that reaches maternal, newborn and child health
+     programmes through UK official development assistance, in a given year.</p>
+  <p>We also show a per-day figure: <code>C ÷ 365</code>.</p>
+
+  <!-- ------------------------------------------------------------------ -->
+  <h2>Step 6 — What C buys (unit costs)</h2>
+  <p>We convert C into three tangible items using published procurement prices.
+     All costs are in USD and converted to GBP at the Bank of England 2024 annual average rate
+     (<strong>1 USD = £0.7874</strong>, source:
+     <a class="source-link" href="https://www.bankofengland.co.uk/statistics/exchange-rates">Bank of England</a>).</p>
+  <ul>
+    <li><strong>Pentavalent vaccine dose (DTP-HepB-Hib)</strong>:
+        $0.75–$2.50 per dose
+        — <a class="source-link" href="https://www.unicef.org/supply/vaccines">UNICEF Supply Division vaccine price data</a>, 2024</li>
+    <li><strong>Bednet (LLIN) distributed</strong>:
+        $3.50–$6.00 per net including logistics
+        — <a class="source-link" href="https://www.againstmalaria.com/Distributions.aspx">Against Malaria Foundation distribution data</a>, 2023</li>
+    <li><strong>ORS treatment course</strong> (one diarrhoea episode, ~2–3 sachets):
+        $0.30–$0.80 per course
+        — <a class="source-link" href="https://supply.unicef.org/">UNICEF Supply Division essential medicines catalogue</a>, 2024</li>
+  </ul>
+
+  <!-- ------------------------------------------------------------------ -->
+  <h2>Step 7 — Monte Carlo uncertainty</h2>
+  <p>We are not certain of the exact values of <strong>c</strong> (the MNCH share of health aid)
+     or the precise unit costs — both vary by year and country. To show this uncertainty honestly,
+     we run 10,000 simulations, each time drawing <strong>c</strong> and each unit cost independently
+     from a uniform distribution between its low and high values.</p>
+  <p>The results shown are the <strong>10th–90th percentile range</strong> across those 10,000 draws,
+     with the median (~50th percentile) shown as the typical estimate.</p>
+  <p>This means: in 80% of plausible scenarios, the true figure lies within the shown range.</p>
+
+  <!-- ------------------------------------------------------------------ -->
+  <h2>What this estimate does not include</h2>
+  <ul>
+    <li>Multilateral aid contributions (e.g. via GAVI, UNICEF, World Bank) — these flow through
+        organisations rather than directly from FCDO bilateral spend and are harder to attribute.</li>
+    <li>Non-monetary UK contributions (technical assistance, policy influence).</li>
+    <li>Tax paid outside Income Tax and NI (e.g. VAT, capital gains) — methodologically complex
+        and beyond the HMRC Annual Tax Summary methodology we follow.</li>
+  </ul>
+
+  <div class="disclaimer">
+    <strong>Disclaimer:</strong> This is an illustrative estimate, not an official breakdown of your tax.
+    It is built in support of ONE's Born to Live petition and is not an official ONE product.
+    Figures are based on publicly available government and international data; they should not be
+    cited as an exact measure of government expenditure.
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "born-to-live-calculator",
+  "version": "0.1.0",
+  "description": "Tax-to-child-health calculator built in support of ONE's Born to Live petition",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "vitest": "^2.0.0"
+  },
+  "license": "MIT"
+}
