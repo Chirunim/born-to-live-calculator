@@ -2,6 +2,34 @@ import { calculateTax } from './tax.js';
 import { runModel }     from './model.js';
 import { getVariant, trackEvent, attachScrollTracking, attachTimeTracking } from './abtest.js';
 
+const ITEM_ICONS = [
+  // vaccine — shield with medical cross
+  `<svg class="item-icon" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+    <circle cx="18" cy="18" r="15" fill="currentColor" fill-opacity="0.1"/>
+    <path d="M18 7 L27 11 L27 20 C27 25 18 29 18 29 C18 29 9 25 9 20 L9 11 Z"
+          stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+    <line x1="18" y1="15" x2="18" y2="22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <line x1="14.5" y1="18.5" x2="21.5" y2="18.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </svg>`,
+  // bednet — tent outline with mesh dashes
+  `<svg class="item-icon" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+    <circle cx="18" cy="18" r="15" fill="currentColor" fill-opacity="0.1"/>
+    <path d="M8 27 L18 11 L28 27 Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+    <line x1="8" y1="27" x2="28" y2="27" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+    <line x1="13" y1="21" x2="23" y2="21" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-dasharray="2 2"/>
+    <line x1="15" y1="24.5" x2="21" y2="24.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-dasharray="2 2"/>
+  </svg>`,
+  // ORS — water drop
+  `<svg class="item-icon" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+    <circle cx="18" cy="18" r="15" fill="currentColor" fill-opacity="0.1"/>
+    <path d="M18 8 C18 8 11 16.5 11 21.5 C11 25.6 14.1 29 18 29 C21.9 29 25 25.6 25 21.5 C25 16.5 18 8 18 8 Z"
+          stroke="currentColor" stroke-width="1.75"/>
+    <path d="M14 24 C14 24 15 27 18 27" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+  </svg>`,
+];
+
+const ITEM_SHORT_NAMES = ['vaccine doses', 'bednets', 'ORS + zinc treatments'];
+
 let figures = null;
 let variant = null;
 let cleanupScroll = null;
@@ -56,7 +84,16 @@ function renderResult(tax, model, salary, region) {
   document.getElementById('res-ni').textContent          = fmt(tax.ni);
   document.getElementById('res-total-tax').textContent   = fmt(tax.total);
 
-  // Per-day
+  // Annual contribution + per-day
+  const annual  = model.perDayGbp * 365;
+  const annualEl = document.getElementById('res-annual');
+  if (annualEl) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      annualEl.textContent = fmtAnnual(annual);
+    } else {
+      countUp(annualEl, annual);
+    }
+  }
   document.getElementById('res-per-day').textContent = fmtSmall(model.perDayGbp);
 
   // Items — write both variant blocks
@@ -65,6 +102,9 @@ function renderResult(tax, model, salary, region) {
 
   resultEl.hidden = false;
   resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // Stagger-animate the icon cards
+  requestAnimationFrame(animateCards);
 
   // Analytics
   if (cleanupScroll) cleanupScroll();
@@ -75,13 +115,14 @@ function renderResult(tax, model, salary, region) {
 }
 
 function renderItems(items, v) {
-  const list = document.getElementById(`items-${v}`);
-  list.innerHTML = items.map(item => `
-    <li>
-      <strong>${item.p10.toLocaleString()}–${item.p90.toLocaleString()}</strong>
-      ${item.names}
-      <span class="median">(~${item.p50.toLocaleString()} typical)</span>
-    </li>
+  const grid = document.getElementById(`items-${v}`);
+  grid.innerHTML = items.map((item, i) => `
+    <div class="item-card">
+      ${ITEM_ICONS[i] ?? ''}
+      <div class="item-range">${item.p10.toLocaleString()}–${item.p90.toLocaleString()}</div>
+      <div class="item-name">${ITEM_SHORT_NAMES[i] ?? item.names}</div>
+      <div class="item-median">~${item.p50.toLocaleString()} typical</div>
+    </div>
   `).join('');
 }
 
@@ -93,6 +134,30 @@ function fmtSmall(n) {
   if (n < 0.01) return 'less than 1p';
   if (n < 1)    return Math.round(n * 100) + 'p';
   return '£' + n.toFixed(2);
+}
+
+function fmtAnnual(n) {
+  if (n < 0.01) return 'less than 1p';
+  if (n < 1)    return Math.round(n * 100) + 'p';
+  return '£' + n.toFixed(2);
+}
+
+function countUp(el, target, duration = 900) {
+  const start = performance.now();
+  function step(now) {
+    const t      = Math.min((now - start) / duration, 1);
+    const eased  = 1 - Math.pow(1 - t, 3);
+    el.textContent = fmtAnnual(target * eased);
+    if (t < 1) requestAnimationFrame(step);
+    else el.textContent = fmtAnnual(target);
+  }
+  requestAnimationFrame(step);
+}
+
+function animateCards() {
+  document.querySelectorAll('.item-card').forEach((card, i) => {
+    setTimeout(() => card.classList.add('visible'), i * 100);
+  });
 }
 
 function showError(msg) {

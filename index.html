@@ -2,304 +2,615 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="claude:viewport-fit-sides" content="cover">
   <title>Born to Live Calculator</title>
   <meta name="description" content="See how much of your UK tax reaches child health through UK aid — built in support of the Born to Live petition.">
 
   <!-- GoatCounter — replace YOUR-SITE-CODE with your GoatCounter site code -->
-  <script data-goatcounter="https://YOUR-SITE-CODE.goatcounter.com/count"
+  <script data-goatcounter="https://borntolive.goatcounter.com/count"
           async src="//gc.zgo.at/count.js"></script>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Source+Sans+3:wght@400;500;600&display=swap">
+
   <style>
+    /* ============================================================
+       TOKENS — Direction A: Warm Amber / Deep Teal
+       Layout: full-bleed hero → centred single-column calculator
+    ============================================================ */
+    :root {
+      --bg:          #faf8f4;
+      --hero-bg:     #0a3d3d;
+      --surface:     #ffffff;
+      --surface-2:   #f2ede6;
+      --border:      #ddd5c8;
+      --text:        #1c1a17;
+      --muted:       #7a6e62;
+      --accent:      #e8961a;
+      --accent-dk:   #c47a0d;
+      --teal:        #0a3d3d;
+      --teal-mid:    #145c5c;
+      --ff-serif:    'Playfair Display', Georgia, serif;
+      --ff-sans:     'Source Sans 3', system-ui, sans-serif;
+      color-scheme: light;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg:         #0d1a1a;
+        --hero-bg:    #060f0f;
+        --surface:    #132020;
+        --surface-2:  #1b2e2e;
+        --border:     #2b3f3f;
+        --text:       #f0ebe2;
+        --muted:      #8fa8a3;
+        --accent:     #f5a623;
+        --accent-dk:  #d4891a;
+        --teal:       #060f0f;
+        --teal-mid:   #0d2e2e;
+        color-scheme: dark;
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --bg:         #0d1a1a;
+      --hero-bg:    #060f0f;
+      --surface:    #132020;
+      --surface-2:  #1b2e2e;
+      --border:     #2b3f3f;
+      --text:       #f0ebe2;
+      --muted:      #8fa8a3;
+      --accent:     #f5a623;
+      --accent-dk:  #d4891a;
+      --teal:       #060f0f;
+      --teal-mid:   #0d2e2e;
+      color-scheme: dark;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { height: 100%; }
 
     body {
-      font-family: system-ui, sans-serif;
+      font-family: var(--ff-sans);
+      background: var(--bg);
+      color: var(--text);
       line-height: 1.6;
-      color: #1a1a1a;
-      background: #fff;
-      max-width: 680px;
-      margin: 0 auto;
-      padding: 1.5rem 1rem;
+      padding-left:  max(16px, env(safe-area-inset-left, 0px));
+      padding-right: max(16px, env(safe-area-inset-right, 0px));
+      padding-bottom: max(32px, env(safe-area-inset-bottom, 0px));
     }
 
-    .label-tag {
-      display: inline-block;
-      font-size: 0.75rem;
+    /* ===== HERO ===== */
+    .hero {
+      background: var(--hero-bg);
+      margin-left:  calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+      margin-right: calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
+      padding: 3.5rem max(32px, env(safe-area-inset-left, 0px)) 3rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* subtle amber glow at base of hero */
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, rgba(232,150,26,0.5) 40%, rgba(232,150,26,0.5) 60%, transparent 100%);
+    }
+
+    .hero-eyebrow {
+      font-family: var(--ff-sans);
+      font-size: 0.68rem;
       font-weight: 600;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
-      color: #666;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      padding: 0.1em 0.5em;
-      margin-bottom: 0.75rem;
+      color: var(--accent);
+      margin-bottom: 1.25rem;
     }
 
-    h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; }
-    h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.75rem; }
+    .hero h1 {
+      font-family: var(--ff-serif);
+      font-size: clamp(2rem, 6.5vw, 3.25rem);
+      font-weight: 900;
+      line-height: 1.12;
+      color: #fff;
+      text-wrap: balance;
+      max-width: 640px;
+      margin: 0 auto 1rem;
+    }
 
-    p { margin-bottom: 0.75rem; color: #444; }
+    .hero h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
 
-    .input-section { margin: 2rem 0; }
+    .hero-sub {
+      font-size: clamp(0.9rem, 2.2vw, 1rem);
+      color: rgba(255, 255, 255, 0.6);
+      max-width: 420px;
+      margin: 0 auto;
+      line-height: 1.65;
+    }
 
-    label { display: block; font-weight: 600; margin-bottom: 0.4rem; }
+    /* ===== MAIN WRAPPER ===== */
+    .wrap {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* ===== INPUT CARD ===== */
+    .input-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem 1.75rem;
+      margin-top: 2.5rem;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .input-card > label {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.6rem;
+    }
 
     .salary-row {
       display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      flex-wrap: wrap;
+      align-items: stretch;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      transition: border-color 0.15s;
     }
 
+    .salary-row:focus-within { border-color: var(--teal-mid); }
+
     .salary-prefix {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: #555;
+      font-family: var(--ff-serif);
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: var(--muted);
+      background: var(--surface-2);
+      padding: 0.5rem 0.8rem 0.5rem 1rem;
+      border-right: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      user-select: none;
+      line-height: 1;
     }
 
     input[type="text"] {
-      font-size: 1.25rem;
-      padding: 0.5rem 0.75rem;
-      border: 2px solid #ccc;
-      border-radius: 6px;
-      width: 180px;
+      font-family: var(--ff-serif);
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: var(--text);
+      background: var(--surface);
+      border: none;
+      outline: none;
+      padding: 0.5rem 1rem;
+      flex: 1;
+      min-width: 0;
+      font-variant-numeric: tabular-nums;
     }
 
-    input[type="text"]:focus {
-      outline: none;
-      border-color: #0057b8;
-    }
+    input[type="text"]::placeholder { color: var(--border); }
 
     .scotland-row {
-      margin-top: 0.75rem;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      font-size: 0.9rem;
-      color: #444;
-    }
-
-    button#calculate-btn {
+      gap: 0.6rem;
       margin-top: 1rem;
-      padding: 0.6rem 1.5rem;
-      font-size: 1rem;
-      font-weight: 600;
-      background: #0057b8;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
       cursor: pointer;
     }
 
-    button#calculate-btn:hover { background: #004a9e; }
+    .scotland-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      accent-color: var(--teal-mid);
+      cursor: pointer;
+    }
+
+    .scotland-row label {
+      font-size: 0.875rem;
+      color: var(--muted);
+      cursor: pointer;
+      font-weight: 400;
+    }
+
+    .calculate-btn {
+      display: block;
+      width: 100%;
+      margin-top: 1.5rem;
+      padding: 0.875rem 1.5rem;
+      font-family: var(--ff-sans);
+      font-size: 1rem;
+      font-weight: 600;
+      background: var(--teal);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      letter-spacing: 0.03em;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .calculate-btn:hover  { background: var(--teal-mid); }
+    .calculate-btn:active { transform: scale(0.985); }
+    .calculate-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
     #error-msg {
       color: #c0392b;
-      font-size: 0.9rem;
-      margin-top: 0.5rem;
-    }
-
-    /* Result section */
-    #result { margin-top: 2rem; border-top: 2px solid #eee; padding-top: 1.5rem; }
-
-    .tax-summary {
-      background: #f8f8f8;
-      border-radius: 8px;
-      padding: 1rem;
-      margin-bottom: 1.25rem;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 0.25rem 1rem;
-      font-size: 0.95rem;
-    }
-
-    .tax-summary .total { font-weight: 700; border-top: 1px solid #ddd; padding-top: 0.4rem; margin-top: 0.25rem; }
-
-    .per-day {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #0057b8;
-      margin-bottom: 1rem;
-    }
-
-    .per-day span { font-size: 0.9rem; font-weight: 400; color: #555; }
-
-    /* Variant copy blocks — only the matching one is shown via CSS */
-    .variant-block { display: none; }
-    [data-variant="numbers"] .variant-block.numbers { display: block; }
-    [data-variant="story"]   .variant-block.story   { display: block; }
-
-    .variant-block ul {
-      list-style: none;
-      padding: 0;
-      margin: 0.5rem 0 1rem;
-    }
-
-    .variant-block ul li {
-      padding: 0.5rem 0;
-      border-bottom: 1px solid #eee;
-      font-size: 0.95rem;
-    }
-
-    .variant-block ul li .median {
       font-size: 0.85rem;
-      color: #777;
-    }
-
-    .story-intro {
-      font-size: 1rem;
-      font-style: italic;
-      color: #444;
-      margin-bottom: 0.75rem;
-    }
-
-    .disclaimer {
-      font-size: 0.8rem;
-      color: #888;
-      border-top: 1px solid #eee;
-      padding-top: 0.75rem;
-      margin-top: 1rem;
-    }
-
-    /* Petition CTA */
-    .petition-cta {
-      margin-top: 1.5rem;
-      padding: 1.25rem;
-      background: #fff8e1;
-      border: 1px solid #f0d060;
-      border-radius: 8px;
+      margin-top: 0.75rem;
       text-align: center;
     }
 
-    .petition-cta p { font-weight: 600; color: #333; margin-bottom: 0.75rem; }
+    /* ===== RESULT ===== */
+    .tax-summary {
+      background: var(--surface-2);
+      border-radius: 10px;
+      padding: 0.9rem 1.25rem;
+      margin-top: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.35rem 1rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
 
-    a#petition-btn {
-      display: inline-block;
-      padding: 0.65rem 1.75rem;
-      background: #e63946;
+    .tax-summary strong { color: var(--text); font-weight: 600; }
+
+    .tax-total-row {
+      border-top: 1px solid var(--border);
+      padding-top: 0.35rem;
+      margin-top: 0.1rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* Annual contribution */
+    .contribution-block {
+      text-align: center;
+      padding: 2.5rem 0 1.75rem;
+    }
+
+    .contribution-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .contribution-amount {
+      font-family: var(--ff-serif);
+      font-size: clamp(2.75rem, 11vw, 4.25rem);
+      font-weight: 900;
+      color: var(--teal-mid);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .contribution-amount { color: var(--accent); }
+    }
+    :root[data-theme="dark"] .contribution-amount { color: var(--accent); }
+
+    .per-day-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25em;
+      margin-top: 1rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 0.3rem 1rem;
+      font-size: 0.875rem;
+      color: var(--muted);
+    }
+
+    .per-day-pill strong { color: var(--text); font-weight: 600; }
+
+    .story-intro {
+      font-size: 0.95rem;
+      font-style: italic;
+      color: var(--muted);
+      text-align: center;
+      max-width: 400px;
+      margin: 2rem auto 0;
+      line-height: 1.65;
+    }
+
+    /* ===== ITEM ICON CARDS ===== */
+    .items-section { margin-top: 0.25rem; }
+
+    .items-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .items-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+
+    .item-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.1rem 0.5rem 0.9rem;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    .item-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .item-card { opacity: 1; transform: none; transition: none; }
+    }
+
+    .item-icon {
+      width: 36px;
+      height: 36px;
+      display: block;
+      margin: 0 auto 0.6rem;
+      color: var(--teal-mid);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .item-icon { color: var(--accent); }
+    }
+    :root[data-theme="dark"] .item-icon { color: var(--accent); }
+
+    .item-range {
+      font-family: var(--ff-serif);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .item-name {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 0.3rem;
+      line-height: 1.3;
+    }
+
+    .item-median {
+      font-size: 0.65rem;
+      color: var(--border);
+      margin-top: 0.2rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .uncertainty-note {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 1rem;
+      line-height: 1.5;
+    }
+
+    /* ===== PETITION CTA ===== */
+    .petition-cta {
+      background: var(--teal);
+      border-radius: 16px;
+      padding: 2rem 1.75rem;
+      text-align: center;
+      margin-top: 2.5rem;
+    }
+
+    .petition-cta h2 {
+      font-family: var(--ff-serif);
+      font-size: 1.3rem;
+      font-weight: 700;
       color: #fff;
+      margin-bottom: 0.6rem;
+      text-wrap: balance;
+    }
+
+    .petition-cta p {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.68);
+      margin-bottom: 1.5rem;
+      max-width: 340px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .petition-btn {
+      display: inline-block;
+      padding: 0.875rem 2.25rem;
+      background: var(--accent);
+      color: #fff;
+      font-family: var(--ff-sans);
       font-weight: 700;
       font-size: 1rem;
-      border-radius: 6px;
       text-decoration: none;
+      border-radius: 10px;
+      transition: background 0.15s, transform 0.1s;
+      letter-spacing: 0.02em;
     }
 
-    a#petition-btn:hover { background: #c1121f; }
+    .petition-btn:hover  { background: var(--accent-dk); }
+    .petition-btn:active { transform: scale(0.98); }
+    .petition-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
+    /* ===== DISCLAIMER ===== */
+    .disclaimer {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 1.25rem;
+      line-height: 1.6;
+    }
+
+    .disclaimer a { color: var(--teal-mid); }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) .disclaimer a { color: var(--accent); }
+    }
+    :root[data-theme="dark"] .disclaimer a { color: var(--accent); }
+
+    /* ===== FOOTER ===== */
     footer {
-      margin-top: 3rem;
-      border-top: 1px solid #eee;
-      padding-top: 1rem;
-      font-size: 0.8rem;
-      color: #999;
+      text-align: center;
+      padding: 2rem 0 0;
+      margin: 2.5rem auto 0;
+      max-width: 500px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
     }
 
-    footer a { color: #0057b8; }
+    footer a { color: var(--teal-mid); }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) footer a { color: var(--accent); }
+    }
+    :root[data-theme="dark"] footer a { color: var(--accent); }
+
+    /* Variant display */
+    .variant-block { display: none; }
+    [data-variant="numbers"] .variant-block.numbers,
+    [data-variant="story"]   .variant-block.story   { display: block; }
   </style>
 </head>
 <body>
 
-  <span class="label-tag">Built in support of the Born to Live petition</span>
-  <h1>What does your tax buy for children's health?</h1>
-  <p>Enter your annual salary to see how much of your UK Income Tax and National Insurance
-     flows through to child health via UK overseas aid — and what that could buy.</p>
+  <!-- HERO -->
+  <header class="hero">
+    <p class="hero-eyebrow">UK Tax &amp; Child Health Aid</p>
+    <h1>Every child is <em>born to live.</em><br>What does your tax do for them?</h1>
+    <p class="hero-sub">Enter your salary to see how much of your UK tax flows to child health through overseas aid — and what it buys.</p>
+  </header>
 
-  <section class="input-section">
-    <label for="salary">Your annual gross salary</label>
-    <div class="salary-row">
-      <span class="salary-prefix">£</span>
-      <input type="text" id="salary" inputmode="numeric" placeholder="30,000" autocomplete="off">
+  <main>
+    <div class="wrap">
+
+      <!-- INPUT -->
+      <section>
+        <div class="input-card">
+          <label for="salary">Your annual gross salary</label>
+          <div class="salary-row">
+            <span class="salary-prefix" aria-hidden="true">£</span>
+            <input type="text" id="salary" inputmode="numeric" placeholder="30,000"
+                   autocomplete="off" aria-label="Annual gross salary in pounds">
+          </div>
+          <div class="scotland-row">
+            <input type="checkbox" id="scotland-toggle">
+            <label for="scotland-toggle">I pay Scottish Income Tax</label>
+          </div>
+          <button class="calculate-btn" id="calculate-btn" type="button">See my contribution</button>
+          <p id="error-msg" hidden></p>
+        </div>
+      </section>
+
+      <!-- RESULT -->
+      <section id="result" hidden aria-live="polite">
+
+        <div class="tax-summary" aria-label="Your estimated tax">
+          <span>Income Tax</span>         <strong id="res-income-tax"></strong>
+          <span>National Insurance</span> <strong id="res-ni"></strong>
+          <span class="tax-total-row">Total estimated tax</span>
+          <strong class="tax-total-row" id="res-total-tax"></strong>
+        </div>
+
+        <!-- Numbers variant -->
+        <div class="variant-block numbers">
+          <div class="contribution-block">
+            <p class="contribution-label">Your share reaching child health this year</p>
+            <div class="contribution-amount" id="res-annual"></div>
+            <div class="per-day-pill">About <strong id="res-per-day"></strong> every day</div>
+          </div>
+          <div class="items-section">
+            <p class="items-label">That could fund approximately</p>
+            <div class="items-grid" id="items-numbers"></div>
+            <p class="uncertainty-note">Ranges show the 10th–90th percentile of a 10,000-draw simulation over uncertainty in aid allocation and unit costs.</p>
+          </div>
+        </div>
+
+        <!-- Story variant -->
+        <div class="variant-block story">
+          <p class="story-intro">Every working day, a small portion of your tax travels across borders — through UK aid, through health programmes, to the clinics and communities where children need it most.</p>
+          <div class="contribution-block">
+            <p class="contribution-label">Your share reaching child health this year</p>
+            <div class="contribution-amount" id="res-annual-story"></div>
+            <div class="per-day-pill">About <strong id="res-per-day-story"></strong> every day</div>
+          </div>
+          <div class="items-section">
+            <p class="items-label">In a year, roughly enough to fund</p>
+            <div class="items-grid" id="items-story"></div>
+            <p class="uncertainty-note">Ranges reflect genuine uncertainty in how health aid is allocated and unit costs vary by country.</p>
+          </div>
+        </div>
+
+        <!-- Petition CTA -->
+        <div class="petition-cta">
+          <h2>These numbers could grow — or disappear.</h2>
+          <p>The Born to Live petition calls on the UK government to protect and increase funding for child health through UK aid.</p>
+          <a id="petition-btn" class="petition-btn" href="#" target="_blank" rel="noopener">Sign the petition →</a>
+        </div>
+
+        <p class="disclaimer">
+          Illustrative estimate — not an official tax breakdown. Based on published HMRC, FCDO and OECD data.
+          <a href="methodology.html">Methodology &amp; sources</a>
+        </p>
+
+      </section>
+
     </div>
-
-    <div class="scotland-row">
-      <input type="checkbox" id="scotland-toggle">
-      <label for="scotland-toggle" style="font-weight:400">I pay Scottish Income Tax</label>
-    </div>
-
-    <button id="calculate-btn" type="button">Calculate</button>
-    <p id="error-msg" hidden></p>
-  </section>
-
-  <section id="result" hidden>
-
-    <div class="tax-summary" aria-label="Your estimated tax">
-      <span>Income Tax</span>      <strong id="res-income-tax"></strong>
-      <span>National Insurance</span> <strong id="res-ni"></strong>
-      <span class="total">Total estimated tax</span> <strong class="total" id="res-total-tax"></strong>
-    </div>
-
-    <!-- Numbers-led variant -->
-    <div class="variant-block numbers">
-      <h2>Your estimated share reaching child health</h2>
-      <p class="per-day" id="per-day-numbers">
-        <span id="res-per-day"></span>
-        <span>&nbsp;per day</span>
-      </p>
-      <p>Over a year, that could fund approximately:</p>
-      <ul id="items-numbers"></ul>
-      <p style="font-size:0.85rem;color:#666">
-        Ranges show the 10th–90th percentile of a 10,000-draw simulation over
-        uncertainty in aid allocation and unit costs.
-      </p>
-    </div>
-
-    <!-- Story-led variant -->
-    <div class="variant-block story">
-      <h2>Your share reaching child health</h2>
-      <p class="story-intro">
-        Every working day, a small portion of your tax travels across borders — through UK aid,
-        through health programmes, to the clinics and communities where children need it most.
-      </p>
-      <p class="per-day">
-        <span id="res-per-day-story"></span>
-        <span>&nbsp;reaches child health every single day</span>
-      </p>
-      <p>In a year, that is roughly enough to fund:</p>
-      <ul id="items-story"></ul>
-      <p style="font-size:0.85rem;color:#666">
-        Ranges reflect genuine uncertainty in how health aid is allocated and unit costs vary by country.
-      </p>
-    </div>
-
-    <p class="disclaimer">
-      Illustrative estimate only — not an official breakdown of your tax.
-      Figures are based on published HMRC, FCDO and OECD data.
-      See the <a href="methodology.html">methodology page</a> for sources and assumptions.
-    </p>
-
-    <div class="petition-cta">
-      <p>These numbers could grow — or disappear. The Born to Live petition calls on the UK
-         government to protect and increase funding for child health through UK aid.</p>
-      <a id="petition-btn" href="#" target="_blank" rel="noopener">Sign the petition</a>
-    </div>
-
-  </section>
+  </main>
 
   <footer>
-    <p>Built in support of the <strong>Born to Live</strong> petition by ONE. This is not an official ONE tool.
-       &nbsp;·&nbsp; <a href="methodology.html">Methodology &amp; sources</a>
+    <p>Independent project. Not an official ONE tool.
+       &nbsp;·&nbsp; <a href="methodology.html">Methodology</a>
        &nbsp;·&nbsp; <a href="https://github.com/Chirunim/born-to-live-calculator">Source code</a>
     </p>
   </footer>
 
-  <!-- GoatCounter no-JS fallback -->
   <noscript>
-    <img src="https://YOUR-SITE-CODE.goatcounter.com/count?p=/noscript">
+    <img src="https://borntolive.goatcounter.com/count?p=/noscript" alt="">
   </noscript>
 
   <script type="module" src="./src/app.js"></script>
 
-  <!-- Sync per-day display for story variant -->
+  <!-- Sync story variant values from numbers variant -->
   <script type="module">
-    const resPerDay = document.getElementById('res-per-day');
-    const storyPerDay = document.getElementById('res-per-day-story');
-    if (storyPerDay && resPerDay) {
-      const observer = new MutationObserver(() => {
-        storyPerDay.textContent = resPerDay.textContent;
-      });
-      observer.observe(resPerDay, { childList: true, characterData: true, subtree: true });
+    function syncEl(srcId, dstId) {
+      const src = document.getElementById(srcId);
+      const dst = document.getElementById(dstId);
+      if (src && dst) {
+        new MutationObserver(() => { dst.textContent = src.textContent; })
+          .observe(src, { childList: true, characterData: true, subtree: true });
+      }
     }
+    syncEl('res-per-day',  'res-per-day-story');
+    syncEl('res-annual',   'res-annual-story');
   </script>
 
 </body>
