@@ -30,7 +30,6 @@
       font-size: 0.95rem;
     }
     .source-link { font-size: 0.85rem; color: #0057b8; }
-    .todo-flag { color: #c0392b; font-weight: 600; }
     .disclaimer {
       margin-top: 2rem;
       padding: 1rem;
@@ -76,64 +75,62 @@
   </ul>
   <p>This is an annual approximation. NI is technically calculated per pay period;
      using annual salary slightly overstates NI for monthly-paid workers near the thresholds.
-     The difference is small and does not affect the aid-chain result materially.</p>
+     The difference is small and does not affect the aid result materially.</p>
 
   <!-- ------------------------------------------------------------------ -->
-  <h2>Step 2 — UK aid as a share of spending (a)</h2>
-  <p>HMRC's Annual Tax Summary shows, for every pound collected, how much goes to each spending
-     area. The "overseas aid" line gives us <strong>a</strong> — the fraction of Total Managed
-     Expenditure that is Official Development Assistance (ODA).</p>
-  <div class="formula">a = UK ODA ÷ Total Managed Expenditure</div>
+  <h2>Step 2 — Identifying UK child health ODA</h2>
+  <p>Rather than estimating a chain of ratios, we go directly to FCDO's raw disbursement
+     data and sum the rows that correspond to child health.</p>
+  <p>We use the
+     <a class="source-link" href="https://www.gov.uk/government/collections/statistics-on-international-development">
+     FCDO Statistics on International Development — underlying data 2017–2024</a>,
+     filtering to calendar years 2022–2024 and averaging across the three years.</p>
+  <p><strong>LOW definition</strong> — core child health programmes:</p>
   <ul>
-    <li>Source: <a class="source-link" href="https://www.gov.uk/government/publications/your-tax-and-public-spending">
-        HMRC — Your taxes and public spending (Annual Tax Summary background notes)</a></li>
-    <li>Value: <span class="todo-flag" id="val-a">TODO — pending manual verification</span></li>
+    <li><strong>13020</strong> — Reproductive health care</li>
+    <li><strong>12240</strong> — Basic nutrition</li>
+    <li><strong>12250</strong> — Infectious disease control</li>
+    <li><strong>12262</strong> — Malaria control</li>
+    <li>Gavi (Vaccine Alliance) multilateral core contributions — identified by
+        channel of delivery, not purpose code (see note below)</li>
   </ul>
+  <p><strong>HIGH definition</strong> — adds broader child-relevant programmes:</p>
+  <ul>
+    <li><strong>12220</strong> — Basic health care</li>
+    <li><strong>13030</strong> — Family planning</li>
+    <li><strong>12261</strong> — Health education</li>
+  </ul>
+  <p><strong>Gavi note:</strong> Gavi, the Vaccine Alliance, procures and delivers vaccines
+     for children in the world's poorest countries. UK core contributions to Gavi are pooled
+     across Gavi's entire programme and recorded in FCDO data against Gavi as the channel of
+     delivery rather than against a single CRS purpose code. We include them in both LOW and
+     HIGH because vaccines are a direct child health intervention. Earmarked Gavi projects
+     (which carry specific purpose codes) are captured automatically by the code filter above.</p>
+  <div class="formula">childHealthODA = 3-year average annual UK disbursements to above codes (2022–2024)</div>
+  <ul>
+    <li>LOW estimate: <strong>£486m/year</strong> (3-year average)</li>
+    <li>HIGH estimate: <strong>£661m/year</strong> (3-year average)</li>
+  </ul>
+  <p>The computation is reproducible via <code>scripts/compute_child_health.py</code> in the source repository.</p>
 
   <!-- ------------------------------------------------------------------ -->
-  <h2>Step 3 — Health aid as a share of UK ODA (h)</h2>
-  <p>Not all UK aid goes to health. The FCDO Statistics on International Development
-     breaks bilateral ODA by sector; we take the health sector total as a fraction of
-     gross bilateral ODA.</p>
-  <div class="formula">h = bilateral health ODA ÷ total bilateral ODA</div>
-  <ul>
-    <li>Source: <a class="source-link" href="https://www.gov.uk/government/collections/statistics-on-international-development">
-        FCDO — Statistics on International Development</a></li>
-    <li>Value: <span class="todo-flag" id="val-h">TODO — pending manual verification</span></li>
-  </ul>
-
-  <!-- ------------------------------------------------------------------ -->
-  <h2>Step 4 — Maternal, newborn and child health share (c)</h2>
-  <p>Within health aid, we focus on the sub-sectors most relevant to children: maternal and
-     newborn care, reproductive health, nutrition, and basic primary care. We identify these
-     using OECD Creditor Reporting System (CRS) purpose codes:</p>
-  <ul>
-    <li>13010 — Population policy and reproductive health</li>
-    <li>13020 — Reproductive health care</li>
-    <li>13030 — Family planning</li>
-    <li>12191 — Medical services (nutrition)</li>
-    <li>12220 — Basic health care</li>
-    <li>12261 — Health education</li>
-  </ul>
-  <div class="formula">c = UK disbursements to above codes ÷ total UK health ODA</div>
-  <ul>
-    <li>Source: <a class="source-link" href="https://stats.oecd.org/Index.aspx?DataSetCode=CRS1">
-        OECD — Creditor Reporting System</a></li>
-    <li>Value (central / low / high): <span class="todo-flag" id="val-c">TODO — pending manual verification</span></li>
-    <li>Low and high are taken from the range of annual values over the most recent
-        three to five years, to reflect genuine year-to-year variation in aid priorities.</li>
-  </ul>
-
-  <!-- ------------------------------------------------------------------ -->
-  <h2>Step 5 — Your contribution to child health (C)</h2>
-  <p>Combining steps 1–4:</p>
-  <div class="formula">C = T × a × h × c</div>
-  <p>C is the estimated amount of your tax that reaches maternal, newborn and child health
-     programmes through UK official development assistance, in a given year.</p>
+  <h2>Step 3 — Your contribution to child health (C)</h2>
+  <p>HMRC's Annual Tax Summary allocates every taxpayer's bill across government spending areas
+     using a single denominator: total expenditure on services (£1,156.4bn in 2024–25).
+     We use the same denominator to convert your tax into a proportional share of UK child
+     health ODA.</p>
+  <div class="formula">C = T × (childHealthODA ÷ expenditure on services)</div>
+  <p>C is the estimated amount of your tax that reaches child health programmes through UK
+     official development assistance in a given year.</p>
   <p>We also show a per-day figure: <code>C ÷ 365</code>.</p>
+  <ul>
+    <li>Expenditure on services: <strong>£1,156.4bn</strong>
+        — <a class="source-link" href="https://www.gov.uk/government/publications/your-tax-and-public-spending">
+        HMRC — Your taxes and public spending</a>, 2024–25</li>
+  </ul>
 
   <!-- ------------------------------------------------------------------ -->
-  <h2>Step 6 — What C buys (unit costs)</h2>
+  <h2>Step 4 — What C buys (unit costs)</h2>
   <p>We convert C into three tangible items using published procurement prices.
      All costs are in USD and converted to GBP at the Bank of England 2024 annual average rate
      (<strong>1 USD = £0.7874</strong>, source:
@@ -145,17 +142,19 @@
     <li><strong>Bednet (LLIN) distributed</strong>:
         $3.50–$6.00 per net including logistics
         — <a class="source-link" href="https://www.againstmalaria.com/Distributions.aspx">Against Malaria Foundation distribution data</a>, 2023</li>
-    <li><strong>ORS treatment course</strong> (one diarrhoea episode, ~2–3 sachets):
-        $0.30–$0.80 per course
-        — <a class="source-link" href="https://supply.unicef.org/">UNICEF Supply Division essential medicines catalogue</a>, 2024</li>
+    <li><strong>Full ORS + zinc treatment</strong> (per WHO/UNICEF joint guidance for childhood diarrhoea):
+        $0.14–$0.50 per treatment
+        — <a class="source-link" href="https://www.unicef.org/supply/oral-rehydration-salts-ors-and-zinc">UNICEF Supply Division — ORS and Zinc</a>, 2024
+        (low = ORS only, 2 sachets; high = ORS + zinc co-pack)</li>
   </ul>
 
   <!-- ------------------------------------------------------------------ -->
-  <h2>Step 7 — Monte Carlo uncertainty</h2>
-  <p>We are not certain of the exact values of <strong>c</strong> (the MNCH share of health aid)
-     or the precise unit costs — both vary by year and country. To show this uncertainty honestly,
-     we run 10,000 simulations, each time drawing <strong>c</strong> and each unit cost independently
-     from a uniform distribution between its low and high values.</p>
+  <h2>Step 5 — Monte Carlo uncertainty</h2>
+  <p>We are not certain whether the LOW or HIGH definition of child health ODA better reflects
+     where UK money has the most impact — and unit costs vary by country and year. To show
+     this uncertainty honestly, we run 10,000 simulations, each time drawing
+     <strong>childHealthODA</strong> uniformly from between the LOW and HIGH values, and drawing
+     each unit cost independently from a uniform distribution between its low and high values.</p>
   <p>The results shown are the <strong>10th–90th percentile range</strong> across those 10,000 draws,
      with the median (~50th percentile) shown as the typical estimate.</p>
   <p>This means: in 80% of plausible scenarios, the true figure lies within the shown range.</p>
@@ -163,8 +162,8 @@
   <!-- ------------------------------------------------------------------ -->
   <h2>What this estimate does not include</h2>
   <ul>
-    <li>Multilateral aid contributions (e.g. via GAVI, UNICEF, World Bank) — these flow through
-        organisations rather than directly from FCDO bilateral spend and are harder to attribute.</li>
+    <li>Multilateral aid via UNICEF, World Bank, and other multilaterals (beyond Gavi) — these
+        are harder to attribute to specific health sub-sectors and are not included.</li>
     <li>Non-monetary UK contributions (technical assistance, policy influence).</li>
     <li>Tax paid outside Income Tax and NI (e.g. VAT, capital gains) — methodologically complex
         and beyond the HMRC Annual Tax Summary methodology we follow.</li>

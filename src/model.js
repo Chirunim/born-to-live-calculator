@@ -1,6 +1,6 @@
 /**
- * Aid-chain model + Monte Carlo simulation.
- * C = T × a × h × c, then converted to items via unit costs.
+ * Aid model + Monte Carlo simulation.
+ * C = T × (childHealthODA ÷ expenditureOnServices), then converted to items via unit costs.
  * Returns p10/p50/p90 percentiles from 10,000 draws.
  */
 
@@ -26,13 +26,11 @@ function percentile(sorted, p) {
 export function runModel(taxTotal, figures) {
   const { aid, costs, meta } = figures;
 
-  // Guard: refuse to run if any sourced figure is still TODO
-  const a = aid.odaTmeRatio.value;
-  const h = aid.healthOdaRatio.value;
-  const cLow = aid.mnchHealthRatio.low;
-  const cHigh = aid.mnchHealthRatio.high;
+  const tme       = aid.expenditureOnServices.value;  // GBP millions
+  const childLow  = aid.childHealthODA.low;            // GBP millions
+  const childHigh = aid.childHealthODA.high;           // GBP millions
 
-  if ([a, h, cLow, cHigh].some(v => v === 'TODO' || v === null)) {
+  if ([tme, childLow, childHigh].some(v => v === 'TODO' || v === null)) {
     return null;
   }
 
@@ -44,12 +42,11 @@ export function runModel(taxTotal, figures) {
     { key: 'orsTreatment',  ...costs.orsTreatment },
   ];
 
-  // Accumulate item counts across draws
   const draws = itemDefs.map(() => []);
 
   for (let i = 0; i < N_DRAWS; i++) {
-    const c = uniform(cLow, cHigh);
-    const C = taxTotal * a * h * c; // GBP reaching MNCH
+    const childOda = uniform(childLow, childHigh);  // GBP millions — varies LOW↔HIGH
+    const C = taxTotal * (childOda / tme);           // GBP reaching child health
 
     for (let j = 0; j < itemDefs.length; j++) {
       const { low, high } = itemDefs[j];
@@ -70,9 +67,7 @@ export function runModel(taxTotal, figures) {
     };
   });
 
-  // Per-day figure uses median C (a × h × mid-c × taxTotal / 365)
-  const cMid = (cLow + cHigh) / 2;
-  const perDayGbp = (taxTotal * a * h * cMid) / 365;
+  const perDayGbp = (taxTotal * ((childLow + childHigh) / 2) / tme) / 365;
 
   return { items, perDayGbp };
 }
