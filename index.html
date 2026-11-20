@@ -393,6 +393,22 @@
       font-variant-numeric: tabular-nums;
     }
 
+    .item-range.frequency {
+      font-size: 0.85rem;
+      line-height: 1.25;
+    }
+
+    #result.no-tax .tax-summary,
+    #result.no-tax .variant-block { display: none; }
+    .no-tax-msg {
+      background: var(--surface-2);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin-top: 1.5rem;
+      line-height: 1.5;
+    }
+    #result:not(.no-tax) .no-tax-msg { display: none; }
+
     .item-name {
       font-size: 0.72rem;
       color: var(--muted);
@@ -533,6 +549,8 @@
       <!-- RESULT -->
       <section id="result" hidden aria-live="polite">
 
+        <p class="no-tax-msg" id="no-tax-msg"></p>
+
         <div class="tax-summary" aria-label="Your estimated tax">
           <span>Income Tax</span>         <strong id="res-income-tax"></strong>
           <span>National Insurance</span> <strong id="res-ni"></strong>
@@ -577,7 +595,7 @@
         </div>
 
         <p class="disclaimer">
-          Illustrative estimate — not an official tax breakdown. Based on published HMRC, FCDO and OECD data.
+          Illustrative estimate — not an official tax breakdown. Based on published HMRC, HM Treasury, FCDO, Bank of England, UNICEF and Against Malaria Foundation data.
           <a href="methodology.html">Methodology &amp; sources</a>
         </p>
 

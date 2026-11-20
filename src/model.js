@@ -6,8 +6,8 @@
 
 const N_DRAWS = 10_000;
 
-function uniform(low, high) {
-  return low + Math.random() * (high - low);
+function uniform(rng, low, high) {
+  return low + rng() * (high - low);
 }
 
 function percentile(sorted, p) {
@@ -20,10 +20,11 @@ function percentile(sorted, p) {
  *
  * @param {number} taxTotal - Total UK tax paid (GBP), from calculateTax().total
  * @param {object} figures  - Parsed figures.json
+ * @param {() => number} [rng] - Random source in [0, 1); injectable for tests
  * @returns {{ items: Array<{name,unit,p10,p50,p90}>, perDayGbp: number } | null}
  *   Returns null if any required figure is still TODO.
  */
-export function runModel(taxTotal, figures) {
+export function runModel(taxTotal, figures, rng = Math.random) {
   const { aid, costs, meta } = figures;
 
   const tme       = aid.expenditureOnServices.value;  // GBP millions
@@ -45,12 +46,12 @@ export function runModel(taxTotal, figures) {
   const draws = itemDefs.map(() => []);
 
   for (let i = 0; i < N_DRAWS; i++) {
-    const childOda = uniform(childLow, childHigh);  // GBP millions — varies LOW↔HIGH
+    const childOda = uniform(rng, childLow, childHigh);  // GBP millions — varies LOW↔HIGH
     const C = taxTotal * (childOda / tme);           // GBP reaching child health
 
     for (let j = 0; j < itemDefs.length; j++) {
       const { low, high } = itemDefs[j];
-      const costGbp = uniform(low, high) * usdGbp;
+      const costGbp = uniform(rng, low, high) * usdGbp;
       draws[j].push(C / costGbp);
     }
   }
@@ -61,9 +62,10 @@ export function runModel(taxTotal, figures) {
       name:  def.itemLabel,
       names: def.itemLabelPlural,
       unit:  def.unit,
-      p10:   Math.round(percentile(sorted, 0.10)),
-      p50:   Math.round(percentile(sorted, 0.50)),
-      p90:   Math.round(percentile(sorted, 0.90)),
+      // Unrounded yearly counts — fractions matter below 1 (see format.js)
+      p10:   percentile(sorted, 0.10),
+      p50:   percentile(sorted, 0.50),
+      p90:   percentile(sorted, 0.90),
     };
   });
 

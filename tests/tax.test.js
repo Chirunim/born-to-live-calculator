@@ -5,8 +5,12 @@ import {
   calculateNI,
   calculateTax,
 } from '../src/tax.js';
+import realFigures from '../data/figures.json';
 
-// Minimal figures object mirroring figures.json structure — 2024-25 rates.
+// Minimal figures object mirroring figures.json structure — 2026-27 rates.
+// Sources: gov.uk/income-tax-rates, gov.uk/scottish-income-tax,
+// gov.uk/national-insurance-rates-letters (accessed 2026-11-19).
+// rUK thresholds and NI are unchanged from 2024-25.
 const figures = {
   tax: {
     personalAllowance: 12570,
@@ -21,11 +25,11 @@ const figures = {
     },
     scotland: {
       bands: [
-        { upto: 2306,   rate: 0.19 },
-        { upto: 13991,  rate: 0.20 },
-        { upto: 31092,  rate: 0.21 },
-        { upto: 62430,  rate: 0.42 },
-        { upto: 112570, rate: 0.45 },
+        { upto: 3967,   rate: 0.19 },   // £12,571 – £16,537
+        { upto: 16956,  rate: 0.20 },   // £16,538 – £29,526
+        { upto: 31092,  rate: 0.21 },   // £29,527 – £43,662
+        { upto: 62430,  rate: 0.42 },   // £43,663 – £75,000
+        { upto: 125140, rate: 0.45 },   // £75,001 – £125,140
         { upto: null,   rate: 0.48 },
       ],
     },
@@ -64,7 +68,7 @@ describe('adjustedPersonalAllowance', () => {
 });
 
 // ---------------------------------------------------------------------------
-// calculateNI  (Class 1 employee, 2024-25: 8% / 2%)
+// calculateNI  (Class 1 employee, 2026-27: 8% / 2%)
 // ---------------------------------------------------------------------------
 describe('calculateNI', () => {
   it('returns 0 below primary threshold', () => {
@@ -176,38 +180,85 @@ describe('calculateTax — rUK', () => {
 });
 
 // ---------------------------------------------------------------------------
-// calculateTax — Scotland
+// calculateTax — Scotland 2026-27
 // NI is identical to rUK; only income tax differs.
 // ---------------------------------------------------------------------------
 describe('calculateTax — Scotland', () => {
   it('salary £30,000', () => {
     // Taxable: 17430
-    // Starter:      2306 × 19% =  438.14
-    // Basic:       11685 × 20% = 2337.00
-    // Intermediate: 3439 × 21% =  722.19
-    // IT total: 3497.33
-    // NI: same as rUK = 1394.40
+    // Starter:       3967 × 19% =  753.73
+    // Basic:        12989 × 20% = 2597.80
+    // Intermediate:   474 × 21% =   99.54
+    // IT total: 3451.07
+    // NI: 17430 × 8% = 1394.40
     const r = calculateTax(30000, 'scotland', figures);
-    expect(r.incomeTax).toBeCloseTo(3497.33, 2);
+    expect(r.incomeTax).toBeCloseTo(3451.07, 2);
     expect(r.ni).toBeCloseTo(1394.40, 2);
+    expect(r.total).toBeCloseTo(4845.47, 2);
   });
 
-  it('salary £60,000', () => {
-    // Taxable: 47430
-    // Starter:      2306 × 19% =  438.14
-    // Basic:       11685 × 20% = 2337.00
-    // Intermediate:17101 × 21% = 3591.21
-    // Higher:      16338 × 42% = 6861.96
-    // IT total: 13228.31
-    // NI: 3210.60
-    const r = calculateTax(60000, 'scotland', figures);
-    expect(r.incomeTax).toBeCloseTo(13228.31, 2);
-    expect(r.ni).toBeCloseTo(3210.60, 2);
+  it('salary £50,000 — higher rate', () => {
+    // Taxable: 50000 - 12570 = 37430
+    // Starter:       3967 × 19% =  753.73
+    // Basic:        12989 × 20% = 2597.80
+    // Intermediate: 14136 × 21% = 2968.56
+    // Higher:        6338 × 42% = 2661.96
+    // IT total: 8982.05
+    // NI: 37430 × 8% = 2994.40
+    const r = calculateTax(50000, 'scotland', figures);
+    expect(r.incomeTax).toBeCloseTo(8982.05, 2);
+    expect(r.ni).toBeCloseTo(2994.40, 2);
+    expect(r.total).toBeCloseTo(11976.45, 2);
+  });
+
+  it('salary £130,000 — top rate starts at £125,140, PA = 0', () => {
+    // Taxable: 130000 (PA fully tapered)
+    // Starter:       3967 × 19% =   753.73
+    // Basic:        12989 × 20% =  2597.80
+    // Intermediate: 14136 × 21% =  2968.56
+    // Higher:       31338 × 42% = 13161.96
+    // Advanced:     62710 × 45% = 28219.50
+    // Top:           4860 × 48% =  2332.80
+    // IT total: 50034.35
+    // NI: 37700 × 8% + 79730 × 2% = 3016 + 1594.60 = 4610.60
+    const r = calculateTax(130000, 'scotland', figures);
+    expect(r.incomeTax).toBeCloseTo(50034.35, 2);
+    expect(r.ni).toBeCloseTo(4610.60, 2);
+    expect(r.total).toBeCloseTo(54644.95, 2);
+  });
+
+  it('no top rate at exactly £125,140', () => {
+    // Taxable 125140, all of it at or below the advanced ceiling
+    // 753.73 + 2597.80 + 2968.56 + 13161.96 + 62710 × 45% (28219.50) = 47701.55
+    const r = calculateTax(125140, 'scotland', figures);
+    expect(r.incomeTax).toBeCloseTo(47701.55, 2);
   });
 
   it('NI matches rUK at same salary', () => {
     const ruk = calculateTax(45000, 'ruk', figures);
     const scot = calculateTax(45000, 'scotland', figures);
     expect(scot.ni).toBe(ruk.ni);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// data/figures.json must match the rates tested above
+// ---------------------------------------------------------------------------
+describe('figures.json tax data', () => {
+  const strip = (bands) => bands.map(({ upto, rate }) => ({ upto, rate }));
+  const t = realFigures.tax;
+
+  it('is labelled 2026-27', () => {
+    expect(t.year).toBe('2026-27');
+  });
+
+  it('matches tested allowances, bands and NI', () => {
+    expect(t.personalAllowance).toBe(tax.personalAllowance);
+    expect(t.paYearTaperStart).toBe(tax.paYearTaperStart);
+    expect(t.paYearTaperEnd).toBe(tax.paYearTaperEnd);
+    expect(strip(t.ruk.bands)).toEqual(tax.ruk.bands);
+    expect(strip(t.scotland.bands)).toEqual(tax.scotland.bands);
+    const { _source, _url, _year, _accessed, _note, ...ni } = t.ni;
+    expect(ni).toEqual(tax.ni);
   });
 });

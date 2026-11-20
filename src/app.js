@@ -1,5 +1,6 @@
 import { calculateTax } from './tax.js';
 import { runModel }     from './model.js';
+import { describeItem, noTaxMessage } from './format.js';
 import { getVariant, trackEvent, attachScrollTracking, attachTimeTracking } from './abtest.js';
 
 const ITEM_ICONS = [
@@ -28,7 +29,8 @@ const ITEM_ICONS = [
   </svg>`,
 ];
 
-const ITEM_SHORT_NAMES = ['vaccine doses', 'bednets', 'ORS + zinc treatments'];
+const ITEM_SHORT_NAMES    = ['vaccine doses', 'bednets', 'ORS + zinc treatments'];
+const ITEM_SINGULAR_NAMES = ['vaccine dose', 'bednet', 'ORS + zinc treatment'];
 
 let figures = null;
 let variant = null;
@@ -66,6 +68,13 @@ function onCalculate() {
 
   const region = document.getElementById('scotland-toggle').checked ? 'scotland' : 'ruk';
   const tax = calculateTax(salary, region, figures);
+
+  const noTax = noTaxMessage(salary, tax.total, figures.tax.personalAllowance);
+  if (noTax) {
+    renderNoTax(noTax, region);
+    return;
+  }
+
   const model = runModel(tax.total, figures);
 
   if (!model) {
@@ -76,8 +85,23 @@ function onCalculate() {
   renderResult(tax, model, salary, region);
 }
 
+function renderNoTax(message, region) {
+  const resultEl = document.getElementById('result');
+  resultEl.classList.add('no-tax');
+  document.getElementById('no-tax-msg').textContent = message;
+  resultEl.hidden = false;
+  resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  if (cleanupScroll) cleanupScroll();
+  if (cleanupTime)   cleanupTime();
+  trackEvent('result_view', { variant, region });
+  cleanupScroll = attachScrollTracking(variant);
+  cleanupTime   = attachTimeTracking(variant, Date.now());
+}
+
 function renderResult(tax, model, salary, region) {
   const resultEl = document.getElementById('result');
+  resultEl.classList.remove('no-tax');
 
   // Tax summary
   document.getElementById('res-income-tax').textContent = fmt(tax.incomeTax);
@@ -85,16 +109,18 @@ function renderResult(tax, model, salary, region) {
   document.getElementById('res-total-tax').textContent   = fmt(tax.total);
 
   // Annual contribution + per-day
-  const annual  = model.perDayGbp * 365;
-  const annualEl = document.getElementById('res-annual');
-  if (annualEl) {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      annualEl.textContent = fmtAnnual(annual);
-    } else {
-      countUp(annualEl, annual);
+  // Both variant blocks carry their own copy of these figures
+  const annual = model.perDayGbp * 365;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  for (const suffix of ['', '-story']) {
+    const annualEl = document.getElementById(`res-annual${suffix}`);
+    if (annualEl) {
+      if (reduceMotion) annualEl.textContent = fmtAnnual(annual);
+      else              countUp(annualEl, annual);
     }
+    const perDayEl = document.getElementById(`res-per-day${suffix}`);
+    if (perDayEl) perDayEl.textContent = fmtSmall(model.perDayGbp);
   }
-  document.getElementById('res-per-day').textContent = fmtSmall(model.perDayGbp);
 
   // Items — write both variant blocks
   renderItems(model.items, 'numbers');
@@ -116,14 +142,18 @@ function renderResult(tax, model, salary, region) {
 
 function renderItems(items, v) {
   const grid = document.getElementById(`items-${v}`);
-  grid.innerHTML = items.map((item, i) => `
+  grid.innerHTML = items.map((item, i) => {
+    const plural   = ITEM_SHORT_NAMES[i] ?? item.names;
+    const singular = ITEM_SINGULAR_NAMES[i] ?? item.name;
+    const d = describeItem(item, singular, plural);
+    return `
     <div class="item-card">
       ${ITEM_ICONS[i] ?? ''}
-      <div class="item-range">${item.p10.toLocaleString()}–${item.p90.toLocaleString()}</div>
-      <div class="item-name">${ITEM_SHORT_NAMES[i] ?? item.names}</div>
-      <div class="item-median">~${item.p50.toLocaleString()} typical</div>
-    </div>
-  `).join('');
+      <div class="item-range ${d.mode}">${d.headline}</div>
+      ${d.label ? `<div class="item-name">${d.label}</div>` : ''}
+      ${d.detail ? `<div class="item-median">${d.detail}</div>` : ''}
+    </div>`;
+  }).join('');
 }
 
 function fmt(n) {

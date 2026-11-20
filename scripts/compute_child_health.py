@@ -5,7 +5,7 @@ Compute UK child health ODA from FCDO Statistics on International Development.
 Reads: data/raw/Data-underlying-SID-2017-2024.ods
 Outputs: 3-year average (2022-2024) for LOW and HIGH child health ODA (GBP millions).
 
-LOW  = CRS purpose codes 13020, 12240, 12250, 12262
+LOW  = sector codes (SpecificSectorCode) 13020, 12240, 12250, 12262
      + multilateral core contributions where channel of delivery is Gavi
        (recorded as "Global Alliance for Vaccines and Immunization" in FCDO data)
 HIGH = LOW + codes 12220, 13030, 12261

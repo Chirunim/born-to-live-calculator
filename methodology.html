@@ -64,14 +64,14 @@
   <p>Figures used:</p>
   <ul>
     <li>Personal Allowance: <strong>£12,570</strong> (tapers to £0 above £100,000)
-        — <a class="source-link" href="https://www.gov.uk/income-tax-rates">gov.uk/income-tax-rates</a>, 2024–25</li>
+        — <a class="source-link" href="https://www.gov.uk/income-tax-rates">gov.uk/income-tax-rates</a>, 2026–27</li>
     <li>rUK Income Tax bands: 20% / 40% / 45%
         — same source</li>
     <li>Scottish Income Tax bands: 19% / 20% / 21% / 42% / 45% / 48%
-        — <a class="source-link" href="https://www.gov.uk/scottish-income-tax">gov.uk/scottish-income-tax</a>, 2024–25</li>
+        — <a class="source-link" href="https://www.gov.uk/scottish-income-tax">gov.uk/scottish-income-tax</a>, 2026–27</li>
     <li>NI Primary Threshold: <strong>£12,570</strong> · Upper Earnings Limit: <strong>£50,270</strong>
         · rates: 8% / 2%
-        — <a class="source-link" href="https://www.gov.uk/national-insurance-rates-letters">gov.uk/national-insurance-rates-letters</a>, 2024–25</li>
+        — <a class="source-link" href="https://www.gov.uk/national-insurance-rates-letters">gov.uk/national-insurance-rates-letters</a>, 2026–27</li>
   </ul>
   <p>This is an annual approximation. NI is technically calculated per pay period;
      using annual salary slightly overstates NI for monthly-paid workers near the thresholds.
@@ -81,10 +81,12 @@
   <h2>Step 2 — Identifying UK child health ODA</h2>
   <p>Rather than estimating a chain of ratios, we go directly to FCDO's raw disbursement
      data and sum the rows that correspond to child health.</p>
-  <p>We use the
-     <a class="source-link" href="https://www.gov.uk/government/collections/statistics-on-international-development">
-     FCDO Statistics on International Development — underlying data 2017–2024</a>,
-     filtering to calendar years 2022–2024 and averaging across the three years.</p>
+  <p>We use FCDO's
+     <a class="source-link" href="https://www.gov.uk/government/statistics/statistics-on-international-development-final-uk-oda-spend-2024">Statistics on International Development: final UK ODA spend 2024</a>
+     — specifically the
+     <a class="source-link" href="https://assets.publishing.service.gov.uk/media/68d677144e830dd22fa1ceb2/Data-underlying-SID-2017-2024.ods">data underlying SID 2017–2024</a> (ODS, 19.7 MB) —
+     filtering to calendar years 2022–2024 and averaging across the three years.
+     Rows are selected by the sector code FCDO records against each disbursement.</p>
   <p><strong>LOW definition</strong> — core child health programmes:</p>
   <ul>
     <li><strong>13020</strong> — Reproductive health care</li>
@@ -92,7 +94,7 @@
     <li><strong>12250</strong> — Infectious disease control</li>
     <li><strong>12262</strong> — Malaria control</li>
     <li>Gavi (Vaccine Alliance) multilateral core contributions — identified by
-        channel of delivery, not purpose code (see note below)</li>
+        channel of delivery, not sector code (see note below)</li>
   </ul>
   <p><strong>HIGH definition</strong> — adds broader child-relevant programmes:</p>
   <ul>
@@ -103,9 +105,9 @@
   <p><strong>Gavi note:</strong> Gavi, the Vaccine Alliance, procures and delivers vaccines
      for children in the world's poorest countries. UK core contributions to Gavi are pooled
      across Gavi's entire programme and recorded in FCDO data against Gavi as the channel of
-     delivery rather than against a single CRS purpose code. We include them in both LOW and
+     delivery rather than against a single sector code. We include them in both LOW and
      HIGH because vaccines are a direct child health intervention. Earmarked Gavi projects
-     (which carry specific purpose codes) are captured automatically by the code filter above.</p>
+     (which carry specific sector codes) are captured automatically by the code filter above.</p>
   <div class="formula">childHealthODA = 3-year average annual UK disbursements to above codes (2022–2024)</div>
   <ul>
     <li>LOW estimate: <strong>£486m/year</strong> (3-year average)</li>
@@ -116,7 +118,7 @@
   <!-- ------------------------------------------------------------------ -->
   <h2>Step 3 — Your contribution to child health (C)</h2>
   <p>HMRC's Annual Tax Summary allocates every taxpayer's bill across government spending areas
-     using a single denominator: total expenditure on services (£1,156.4bn in 2024–25).
+     in proportion to HM Treasury's total expenditure on services (£1,156.4bn in 2024–25).
      We use the same denominator to convert your tax into a proportional share of UK child
      health ODA.</p>
   <div class="formula">C = T × (childHealthODA ÷ expenditure on services)</div>
@@ -124,9 +126,9 @@
      official development assistance in a given year.</p>
   <p>We also show a per-day figure: <code>C ÷ 365</code>.</p>
   <ul>
-    <li>Expenditure on services: <strong>£1,156.4bn</strong>
-        — <a class="source-link" href="https://www.gov.uk/government/publications/your-tax-and-public-spending">
-        HMRC — Your taxes and public spending</a>, 2024–25</li>
+    <li>Expenditure on services: <strong>£1,156.4bn</strong> (£1,156,393m)
+        — <a class="source-link" href="https://www.gov.uk/government/statistics/public-expenditure-statistical-analyses-2025">HM Treasury — Public Expenditure Statistical Analyses 2025</a>, 2024–25</li>
+    <li>Method — <a class="source-link" href="https://www.gov.uk/government/publications/how-public-spending-was-calculated-in-your-tax-summary/how-public-spending-was-calculated-in-your-tax-summary">HMRC — How public spending was calculated in your tax summary</a>, 2024–25</li>
   </ul>
 
   <!-- ------------------------------------------------------------------ -->
@@ -167,6 +169,23 @@
     <li>Non-monetary UK contributions (technical assistance, policy influence).</li>
     <li>Tax paid outside Income Tax and NI (e.g. VAT, capital gains) — methodologically complex
         and beyond the HMRC Annual Tax Summary methodology we follow.</li>
+  </ul>
+
+  <!-- ------------------------------------------------------------------ -->
+  <h2>All sources</h2>
+  <p>Every figure in <code>data/figures.json</code> comes from one of these. Links checked 19 November 2026.</p>
+  <ul>
+    <li><a class="source-link" href="https://www.gov.uk/income-tax-rates">GOV.UK — Income Tax rates and Personal Allowances</a> (2026–27)</li>
+    <li><a class="source-link" href="https://www.gov.uk/scottish-income-tax">GOV.UK — Scottish Income Tax</a> (2026–27)</li>
+    <li><a class="source-link" href="https://www.gov.uk/national-insurance-rates-letters">GOV.UK — National Insurance rates and category letters</a> (2026–27)</li>
+    <li><a class="source-link" href="https://www.gov.uk/government/statistics/statistics-on-international-development-final-uk-oda-spend-2024">FCDO — Statistics on International Development: final UK ODA spend 2024</a>
+        and its <a class="source-link" href="https://assets.publishing.service.gov.uk/media/68d677144e830dd22fa1ceb2/Data-underlying-SID-2017-2024.ods">underlying data 2017–2024 (ODS)</a></li>
+    <li><a class="source-link" href="https://www.gov.uk/government/statistics/public-expenditure-statistical-analyses-2025">HM Treasury — Public Expenditure Statistical Analyses 2025</a></li>
+    <li><a class="source-link" href="https://www.gov.uk/government/publications/how-public-spending-was-calculated-in-your-tax-summary/how-public-spending-was-calculated-in-your-tax-summary">HMRC — How public spending was calculated in your tax summary</a></li>
+    <li><a class="source-link" href="https://www.bankofengland.co.uk/statistics/exchange-rates">Bank of England — exchange rates</a> (USD/GBP, 2024 annual average)</li>
+    <li><a class="source-link" href="https://www.unicef.org/supply/vaccines">UNICEF Supply Division — vaccine price data</a></li>
+    <li><a class="source-link" href="https://www.unicef.org/supply/oral-rehydration-salts-ors-and-zinc">UNICEF Supply Division — ORS and zinc</a></li>
+    <li><a class="source-link" href="https://www.againstmalaria.com/Distributions.aspx">Against Malaria Foundation — distributions</a></li>
   </ul>
 
   <div class="disclaimer">

@@ -7,12 +7,18 @@ through UK aid, shows what that buys, and links to the petition.
 
 ## Model
 - T = UK Income Tax + employee National Insurance (rUK and Scotland toggle)
-- a = UK ODA / Total Managed Expenditure (HMRC Annual Tax Summary method)
-- h = health aid / total aid (FCDO Statistics on International Development)
-- c = share of health aid for maternal, newborn and child health, vaccines, nutrition (OECD CRS)
-- C = T × a × h × c, converted to items (vaccine doses, bednets, ORS) using unit costs
-- Monte Carlo (10,000 draws) over low/high ranges for c and unit costs; show 10th–90th percentile
+- childHealthODA = 3-year average (2022–2024) UK child health ODA, summed directly from
+  FCDO Statistics on International Development underlying data by sector code
+  (scripts/compute_child_health.py). LOW = 13020, 12240, 12250, 12262 + Gavi core
+  contributions (by channel of delivery); HIGH adds 12220, 13030, 12261
+- E = total expenditure on services (HM Treasury PESA; the HMRC Annual Tax Summary denominator)
+- C = T × childHealthODA ÷ E, converted to items (vaccine doses, bednets, ORS + zinc) using unit costs
+- Monte Carlo (10,000 draws) over LOW/HIGH childHealthODA and any unit-cost ranges; show 10th–90th percentile
 - Show a per-day figure (C / 365)
+- Below 1 item a year, show "one [item] every X months" (years above 24 months; "less than one …
+  in a lifetime of tax at this salary" above 100 years). Never show "0 [items]"
+- Salary with zero tax (under the £12,570 personal allowance): friendly no-tax message instead of results
+- Cite FCDO SID directly; mention OECD only where an OECD figure is actually used
 
 ## A/B test
 - Randomly assign visitors to "numbers-led" or "story-led" result
