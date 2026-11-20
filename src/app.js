@@ -1,6 +1,7 @@
 import { calculateTax } from './tax.js';
 import { runModel }     from './model.js';
-import { describeItem, noTaxMessage } from './format.js';
+import { describeItem, noTaxMessage, formatBigRange, formatGbpMillions, formatGbpSmall } from './format.js';
+import { childHealthComparison, pledgeComparison } from './compare.js';
 import { getVariant, trackEvent, attachScrollTracking, attachTimeTracking } from './abtest.js';
 
 const ITEM_ICONS = [
@@ -89,6 +90,7 @@ function renderNoTax(message, region) {
   const resultEl = document.getElementById('result');
   resultEl.classList.add('no-tax');
   document.getElementById('no-tax-msg').textContent = message;
+  renderComparison(null);   // UK figures only — no personal share to show
   resultEl.hidden = false;
   resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
@@ -126,6 +128,8 @@ function renderResult(tax, model, salary, region) {
   renderItems(model.items, 'numbers');
   renderItems(model.items, 'story');
 
+  renderComparison(tax.total);
+
   resultEl.hidden = false;
   resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
@@ -154,6 +158,45 @@ function renderItems(items, v) {
       ${d.detail ? `<div class="item-median">${d.detail}</div>` : ''}
     </div>`;
   }).join('');
+}
+
+// Before the cuts (2022–24) vs Now (2026–27 estimate)
+function renderComparison(taxTotal) {
+  const ch = childHealthComparison(figures, taxTotal);
+  const pledges = pledgeComparison(figures, taxTotal);
+
+  // Collective UK child health aid
+  const odaText = (side) => `${formatGbpMillions(side.low)}–${formatGbpMillions(side.high)}`;
+  const itemsText = (side) => {
+    const [vax, net] = side.items;
+    return `≈ ${formatBigRange(vax.p10, vax.p90)} vaccine doses, or ${formatBigRange(net.p10, net.p90)} bednets`;
+  };
+  document.getElementById('cmp-oda-before').textContent = ch.before ? odaText(ch.before) : '—';
+  document.getElementById('cmp-oda-before-items').textContent = ch.before ? itemsText(ch.before) : '';
+  document.getElementById('cmp-oda-now-cell').classList.toggle('pending', !ch.now);
+  document.getElementById('cmp-oda-now').textContent = ch.now ? odaText(ch.now) : ch.pendingLabel;
+  document.getElementById('cmp-oda-now-items').textContent = ch.now ? itemsText(ch.now) : '';
+
+  // Pledges
+  const pct = (p) => `${p > 0 ? '+' : p < 0 ? '−' : ''}${Math.abs(Math.round(p))}%`;
+  document.querySelector('#cmp-pledges tbody').innerHTML = pledges.map((p) => `
+    <tr>
+      <th scope="row">${p.name}</th>
+      <td>${formatGbpMillions(p.before.perYear)}<small>${p.before.period}</small></td>
+      <td>${formatGbpMillions(p.now.perYear)}<small>${p.now.period}</small></td>
+      <td class="compare-down">${pct(p.changePct)}</td>
+    </tr>`).join('');
+
+  // The visitor's own share
+  if (taxTotal == null) return;
+  const rows = [
+    ['Child health aid',
+      ch.before ? formatGbpSmall(ch.before.yourPerYear) : '—',
+      ch.now ? formatGbpSmall(ch.now.yourPerYear) : 'Pending'],
+    ...pledges.map((p) => [p.name, formatGbpSmall(p.yourBefore), formatGbpSmall(p.yourNow)]),
+  ];
+  document.querySelector('#cmp-yours tbody').innerHTML = rows.map(([name, b, n]) => `
+    <tr><th scope="row">${name}</th><td>${b}</td><td>${n}</td></tr>`).join('');
 }
 
 function fmt(n) {

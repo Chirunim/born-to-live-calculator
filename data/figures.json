@@ -80,6 +80,64 @@
       "low": 486.4,
       "high": 661.3,
       "unit": "GBP millions"
+    },
+    "childHealthODA2026_27": {
+      "_description": "Estimated UK child health ODA for 2026–27, same definition as childHealthODA (LOW/HIGH sector codes + Gavi core contributions). Drives the 'Now' side of the Before vs Now view.",
+      "_status": "PLACEHOLDER — estimate pending ONE data team. Do not fill with an invented number. Replace low/high with the ONE data team's estimate and add _source, _url and _accessed.",
+      "_source": "TODO — ONE data team",
+      "_url": "TODO",
+      "_year": "2026-27",
+      "_accessed": "TODO",
+      "displayLabel": "Estimate pending ONE data team",
+      "low": "TODO",
+      "high": "TODO",
+      "unit": "GBP millions"
+    },
+    "pledges": {
+      "_note": "UK multi-year pledges, in GBP millions. Annualised in src/compare.js as total ÷ years in the pledge period (assumes even disbursement across the period).",
+      "gavi": {
+        "name": "Gavi, the Vaccine Alliance",
+        "before": {
+          "_source": "GOV.UK — British High Commissioner meets Special Adviser to the Prime Minister on health ahead of the Global Vaccines Summit in the UK: 'The UK is proud to pledge £1.65 billion to Gavi for 2021-2025.'",
+          "_url": "https://www.gov.uk/government/news/british-high-commissioner-meets-sapm-health-ahead-of-the-global-vaccines-summit-in-the-uk",
+          "_published": "2020-06-03",
+          "_accessed": "2026-11-20",
+          "total": 1650,
+          "period": "2021–2025",
+          "years": 5
+        },
+        "now": {
+          "_source": "GOV.UK — UK partners with Gavi to help save up to 8 million lives by 2030: £1.25 billion for 2026 to 2030",
+          "_url": "https://www.gov.uk/government/news/uk-partners-with-gavi-to-help-save-up-to-eight-million-lives-by-2030",
+          "_published": "2025-06-25",
+          "_accessed": "2026-11-20",
+          "total": 1250,
+          "period": "2026–2030",
+          "years": 5
+        }
+      },
+      "globalFund": {
+        "name": "The Global Fund",
+        "before": {
+          "_source": "GOV.UK — UK aid will save over one million lives from killer diseases: £1 billion over 3 years, 'in response to the Global Fund's seventh replenishment for 2023 to 2025'",
+          "_url": "https://www.gov.uk/government/news/uk-aid-will-save-over-one-million-lives-from-killer-diseases",
+          "_published": "2022-11-14",
+          "_accessed": "2026-11-20",
+          "total": 1000,
+          "period": "2023–2025",
+          "years": 3
+        },
+        "now": {
+          "_source": "GOV.UK — UK Biological Security Strategy: Implementation Report, July 2025 - July 2026: 'the UK's £850 million commitment (2026-2028)' to the Global Fund's Eighth Replenishment. Also stated in the Foreign Secretary's statement on international development, 19 March 2026 (_alsoUrl).",
+          "_url": "https://www.gov.uk/government/publications/uk-biological-security-strategy-implementation-report-july-2025-july-2026/uk-biological-security-strategy-implementation-report-july-2025-july-2026",
+          "_alsoUrl": "https://www.gov.uk/government/speeches/foreign-secretary-statement-on-international-development-19-march",
+          "_published": "2026-07-14",
+          "_accessed": "2026-11-20",
+          "total": 850,
+          "period": "2026–2028",
+          "years": 3
+        }
+      }
     }
   },
 

@@ -431,6 +431,96 @@
       line-height: 1.5;
     }
 
+    /* ===== BEFORE vs NOW ===== */
+    .compare {
+      margin-top: 2.5rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+    .compare h2 {
+      font-family: var(--ff-serif);
+      font-size: 1.3rem;
+      font-weight: 700;
+      line-height: 1.25;
+      text-wrap: balance;
+    }
+    .compare-kicker {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 1.5rem 0 0.6rem;
+    }
+    .compare-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+    }
+    .compare-cell {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.9rem 1rem;
+      min-width: 0;
+    }
+    .compare-cell.pending {
+      background: transparent;
+      border-style: dashed;
+    }
+    .compare-when {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-bottom: 0.3rem;
+    }
+    .compare-big {
+      font-family: var(--ff-serif);
+      font-size: 1.35rem;
+      font-weight: 700;
+      line-height: 1.15;
+      font-variant-numeric: tabular-nums;
+      overflow-wrap: anywhere;
+    }
+    .compare-cell.pending .compare-big {
+      font-family: var(--ff-sans);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .compare-detail {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 0.35rem;
+      line-height: 1.4;
+    }
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .compare-table th,
+    .compare-table td {
+      text-align: right;
+      padding: 0.5rem 0.25rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .compare-table th:first-child,
+    .compare-table td:first-child { text-align: left; }
+    .compare-table thead th {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .compare-table small {
+      display: block;
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+    .compare-down { font-weight: 700; }
+    #result.no-tax .compare-yours { display: none; }
+
     /* ===== PETITION CTA ===== */
     .petition-cta {
       background: var(--teal);
@@ -587,15 +677,53 @@
           </div>
         </div>
 
-        <!-- Petition CTA -->
-        <div class="petition-cta">
-          <h2>These numbers could grow — or disappear.</h2>
-          <p>The Born to Live petition calls on the UK government to protect and increase funding for child health through UK aid.</p>
-          <a id="petition-btn" class="petition-btn" href="#" target="_blank" rel="noopener">Sign the petition →</a>
-        </div>
+        <!-- Before the cuts vs Now — shown to both A/B variants -->
+        <section class="compare" id="compare" aria-labelledby="compare-title">
+          <h2 id="compare-title">Before the cuts (2022–24) vs Now (2026–27 estimate)</h2>
+
+          <p class="compare-kicker">UK child health aid, per year</p>
+          <div class="compare-pair">
+            <div class="compare-cell">
+              <p class="compare-when">Before · 2022–24 average</p>
+              <div class="compare-big" id="cmp-oda-before"></div>
+              <p class="compare-detail" id="cmp-oda-before-items"></p>
+            </div>
+            <div class="compare-cell" id="cmp-oda-now-cell">
+              <p class="compare-when">Now · 2026–27</p>
+              <div class="compare-big" id="cmp-oda-now"></div>
+              <p class="compare-detail" id="cmp-oda-now-items"></p>
+            </div>
+          </div>
+
+          <p class="compare-kicker">UK pledges, per year</p>
+          <table class="compare-table" id="cmp-pledges">
+            <thead><tr><th scope="col"></th><th scope="col">Before</th><th scope="col">Now</th><th scope="col">Change</th></tr></thead>
+            <tbody></tbody>
+          </table>
+
+          <div class="compare-yours">
+            <p class="compare-kicker">Your share, per year</p>
+            <table class="compare-table" id="cmp-yours">
+              <thead><tr><th scope="col"></th><th scope="col">Before</th><th scope="col">Now</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <p class="uncertainty-note">Pledges are shown per year: the total divided by the years it covers.
+            Item counts are what the whole budget would buy if it were all spent on that one item.
+            Your share uses the latest published total public spending (2024–25) for both columns.
+            <a href="methodology.html#before-vs-now">How this works</a></p>
+
+          <!-- Petition CTA -->
+          <div class="petition-cta">
+            <h2>These numbers could grow — or disappear.</h2>
+            <p>The Born to Live petition calls on the UK government to protect and increase funding for child health through UK aid.</p>
+            <a id="petition-btn" class="petition-btn" href="#" target="_blank" rel="noopener">Sign the petition →</a>
+          </div>
+        </section>
 
         <p class="disclaimer">
-          Illustrative estimate — not an official tax breakdown. Based on published HMRC, HM Treasury, FCDO, Bank of England, UNICEF and Against Malaria Foundation data.
+          Illustrative estimate — not an official tax breakdown. Based on published HMRC, HM Treasury, FCDO, GOV.UK pledge announcements, Bank of England, UNICEF and Against Malaria Foundation data.
           <a href="methodology.html">Methodology &amp; sources</a>
         </p>
 

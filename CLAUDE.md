@@ -19,6 +19,10 @@ through UK aid, shows what that buys, and links to the petition.
   in a lifetime of tax at this salary" above 100 years). Never show "0 [items]"
 - Salary with zero tax (under the £12,570 personal allowance): friendly no-tax message instead of results
 - Cite FCDO SID directly; mention OECD only where an OECD figure is actually used
+- "Before the cuts (2022–24) vs Now (2026–27 estimate)" view (src/compare.js): UK-wide figures first,
+  then the visitor's share; ends with the petition button. Gavi/Global Fund pledges annualised
+  (total ÷ years). 2026–27 child health ODA is a placeholder ("estimate pending ONE data team",
+  aid.childHealthODA2026_27) until the ONE data team supplies it. Never fill it with an invented number
 
 ## A/B test
 - Randomly assign visitors to "numbers-led" or "story-led" result
