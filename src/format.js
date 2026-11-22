@@ -60,9 +60,9 @@ export function noTaxMessage(salary, taxTotal, personalAllowance) {
     `so there's no tax contribution to show. You can still add your name to the petition below.`;
 }
 
-/** GBP millions → "£330m" / "£1.2bn". */
+/** GBP millions → "£330m" / "£1bn" / "£1.25bn" (up to 3 significant figures, so pledges show exactly). */
 export function formatGbpMillions(m) {
-  if (m >= 1000) return `£${Number((m / 1000).toPrecision(2)).toLocaleString('en-GB')}bn`;
+  if (m >= 1000) return `£${Number((m / 1000).toPrecision(3)).toLocaleString('en-GB')}bn`;
   return `£${Math.round(m).toLocaleString('en-GB')}m`;
 }
 

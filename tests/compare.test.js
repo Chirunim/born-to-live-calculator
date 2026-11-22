@@ -71,6 +71,10 @@ describe('pledges annualised', () => {
     expect(gf.changePct).toBeCloseTo(-15, 5);
     expect([gavi, gf].map((p) => formatGbpMillions(p.now.perYear))).toEqual(['£250m', '£283m']);
   });
+
+  it('pledge totals show exactly: £1.25bn, £1.65bn, £1bn, £850m', () => {
+    expect([1250, 1650, 1000, 850].map(formatGbpMillions)).toEqual(['£1.25bn', '£1.65bn', '£1bn', '£850m']);
+  });
 });
 
 describe('UK mother and child health aid before the cuts', () => {
