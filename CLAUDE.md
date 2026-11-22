@@ -26,7 +26,9 @@ children through UK aid, shows what that buys, and links to the petition.
 - Salary with zero tax (under the £12,570 personal allowance): friendly no-tax message instead of results
 - Cite FCDO SID directly; mention OECD only where an OECD figure is actually used
 - "Before the cuts (2022–24) vs Now (2026–27 estimate)" view (src/compare.js): UK-wide figures first,
-  then the visitor's share; ends with the petition button. Gavi/Global Fund pledges annualised
+  then the visitor's share; ends with the petition button. UK-wide aid is shown in £ only — never convert
+  it into item counts (overstates impact). Pledge impact = the UK's own published statements, quoted
+  verbatim and linked. Item equivalents only for the visitor's share, labelled "roughly equivalent to". Gavi/Global Fund pledges annualised
   (total ÷ years). 2026–27 mother and child health aid is a placeholder ("estimate pending ONE data team",
   aid.childHealthODA2026_27) until the ONE data team supplies it. Never fill it with an invented number
 

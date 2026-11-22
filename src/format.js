@@ -60,31 +60,6 @@ export function noTaxMessage(salary, taxTotal, personalAllowance) {
     `so there's no tax contribution to show. You can still add your name to the petition below.`;
 }
 
-/** Large counts to 2 significant figures: 448,213,000 → "450 million". */
-export function formatBigCount(n) {
-  const [div, unit] = bigUnit(n);
-  return `${sig2(n / div)}${unit}`;
-}
-
-/** "300–800 million", or "850 million–1.1 billion" when the units differ. */
-export function formatBigRange(low, high) {
-  const [dl, ul] = bigUnit(low);
-  const [dh, uh] = bigUnit(high);
-  const a = sig2(low / dl), b = sig2(high / dh);
-  if (ul === uh) return a === b ? `${a}${uh}` : `${a}–${b}${uh}`;
-  return `${a}${ul}–${b}${uh}`;
-}
-
-function bigUnit(n) {
-  if (Number(n.toPrecision(2)) >= 1e9) return [1e9, ' billion'];
-  if (Number(n.toPrecision(2)) >= 1e6) return [1e6, ' million'];
-  return [1, ''];
-}
-
-function sig2(x) {
-  return Number(x.toPrecision(2)).toLocaleString('en-GB');
-}
-
 /** GBP millions → "£330m" / "£1.2bn". */
 export function formatGbpMillions(m) {
   if (m >= 1000) return `£${Number((m / 1000).toPrecision(2)).toLocaleString('en-GB')}bn`;

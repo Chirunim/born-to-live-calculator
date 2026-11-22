@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { annualise, pledgeComparison, childHealthComparison } from '../src/compare.js';
-import { formatBigRange, formatGbpMillions, formatGbpSmall } from '../src/format.js';
+import { annualise, pledgeComparison, childHealthComparison, impactStatement } from '../src/compare.js';
+import { formatGbpMillions, formatGbpSmall } from '../src/format.js';
 import { calculateTax } from '../src/tax.js';
 import figures from '../data/figures.json';
 
@@ -74,22 +74,49 @@ describe('pledges annualised', () => {
 });
 
 describe('UK mother and child health aid before the cuts', () => {
-  // Core £486.4m, wider £661.3m ÷ vaccine course £2.00787 = 242.2m / 329.4m children;
-  // ÷ bednet £1.52756 = 318.4m / 432.9m
   const { before } = childHealthComparison(figures, null);
 
-  it('is the whole 2022–24 budget, for each estimate', () => {
-    const [vax, net] = before.items;
-    expect(vax.low / 1e6).toBeCloseTo(242.25, 1);
-    expect(vax.high / 1e6).toBeCloseTo(329.35, 1);
-    expect(net.low / 1e6).toBeCloseTo(318.42, 1);
-    expect(net.high / 1e6).toBeCloseTo(432.91, 1);
-    expect(formatBigRange(vax.low, vax.high)).toBe('240–330 million');
-    expect(formatBigRange(net.low, net.high)).toBe('320–430 million');
+  it('is shown in £ only: core £486.4m to wider £661.3m', () => {
+    expect(before).toMatchObject({ low: 486.4, high: 661.3 });
+    expect([before.low, before.high].map(formatGbpMillions)).toEqual(['£486m', '£661m']);
+  });
+
+  it('has no collective item counts (they would overstate impact)', () => {
+    expect(before).not.toHaveProperty('items');
   });
 
   it('has no personal share without a tax figure', () => {
     expect(before.yourPerYear).toBeNull();
+  });
+});
+
+describe('UK published impact statements for current pledges', () => {
+  const [gavi, gf] = pledgeComparison(figures);
+
+  it('Gavi: gov.uk press release, quoted in full', () => {
+    expect(gavi.impact.text).toBe('“Today’s pledge will help Gavi in their mission to protect up to 500 million children between 2026 to 2030 and save up to 8 million more lives.”');
+    expect(gavi.impact.url).toBe('https://www.gov.uk/government/news/uk-partners-with-gavi-to-help-save-up-to-eight-million-lives-by-2030');
+    expect(gavi.now).toMatchObject({ total: 1250, period: '2026–2030' });
+  });
+
+  it('Global Fund: Global Fund press release, opening clause with an ellipsis', () => {
+    expect(gf.impact.text).toBe('“Our investment over the next three years will help to save up to 1.3 million lives…”');
+    expect(gf.impact.url).toMatch(/^https:\/\/www\.theglobalfund\.org\/en\/news\/2025\/2025-11-11-/);
+    expect(gf.now).toMatchObject({ total: 850, period: '2026–2028' });
+  });
+
+  it('each statement has a source, publication date and accessed date', () => {
+    for (const key of ['gavi', 'globalFund']) {
+      const i = figures.aid.pledges[key].now.impact;
+      expect(i.attribution).toBeTruthy();
+      expect(i._published).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(i._accessed).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    }
+  });
+
+  it('is null when no statement is recorded', () => {
+    expect(impactStatement(undefined)).toBeNull();
+    expect(impactStatement({ quote: 'x.' })).toBeNull();   // no URL, not shown
   });
 });
 
@@ -114,17 +141,5 @@ describe('£30,000 visitor share', () => {
     const [gavi, gf] = pledgeComparison(figures, T);
     expect([gavi.yourBefore, gavi.yourNow, gf.yourBefore, gf.yourNow].map(formatGbpSmall))
       .toEqual(['£1.39', '£1.06', '£1.41', '£1.20']);
-  });
-});
-
-describe('formatBigRange', () => {
-  it('shares the unit when both ends match', () => {
-    expect(formatBigRange(312e6, 798e6)).toBe('310–800 million');
-  });
-  it('names both units when they differ', () => {
-    expect(formatBigRange(850e6, 1.12e9)).toBe('850 million–1.1 billion');
-  });
-  it('collapses an identical range', () => {
-    expect(formatBigRange(448e6, 452e6)).toBe('450 million');
   });
 });

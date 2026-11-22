@@ -1,6 +1,6 @@
 import { calculateTax } from './tax.js';
 import { runModel }     from './model.js';
-import { describeItem, noTaxMessage, formatBigRange, formatGbpMillions, formatGbpSmall } from './format.js';
+import { describeItem, noTaxMessage, formatGbpMillions, formatGbpSmall } from './format.js';
 import { childHealthComparison, pledgeComparison } from './compare.js';
 import { getVariant, trackEvent, attachScrollTracking, attachTimeTracking } from './abtest.js';
 
@@ -111,8 +111,8 @@ function renderResult(tax, model, salary, region) {
   document.getElementById('res-total-tax').textContent   = fmt(tax.total);
 
   // Two labelled estimates — write both variant blocks
-  renderEstimates(model.estimates, 'numbers', 'That could fund approximately');
-  renderEstimates(model.estimates, 'story', 'In a year, roughly enough to fund');
+  renderEstimates(model.estimates, 'numbers', 'Roughly equivalent to');
+  renderEstimates(model.estimates, 'story', 'Roughly equivalent to');
 
   renderComparison(tax.total);
 
@@ -159,15 +159,12 @@ function renderComparison(taxTotal) {
 
   // Collective UK mother and child health aid
   const odaText = (side) => `${formatGbpMillions(side.low)}–${formatGbpMillions(side.high)}`;
-  const itemsText = (side) => {
-    const [vax, net] = side.items;
-    return `≈ ${formatBigRange(vax.low, vax.high)} children fully vaccinated, or ${formatBigRange(net.low, net.high)} bednets`;
-  };
+  const RANGE_NOTE = 'Core estimate to including wider basic health';
   document.getElementById('cmp-oda-before').textContent = ch.before ? odaText(ch.before) : '—';
-  document.getElementById('cmp-oda-before-items').textContent = ch.before ? itemsText(ch.before) : '';
+  document.getElementById('cmp-oda-before-detail').textContent = ch.before ? RANGE_NOTE : '';
   document.getElementById('cmp-oda-now-cell').classList.toggle('pending', !ch.now);
   document.getElementById('cmp-oda-now').textContent = ch.now ? odaText(ch.now) : ch.pendingLabel;
-  document.getElementById('cmp-oda-now-items').textContent = ch.now ? itemsText(ch.now) : '';
+  document.getElementById('cmp-oda-now-detail').textContent = ch.now ? RANGE_NOTE : '';
 
   // Pledges
   const pct = (p) => `${p > 0 ? '+' : p < 0 ? '−' : ''}${Math.abs(Math.round(p))}%`;
@@ -178,6 +175,16 @@ function renderComparison(taxTotal) {
       <td>${formatGbpMillions(p.now.perYear)}<small>${p.now.period}</small></td>
       <td class="compare-down">${pct(p.changePct)}</td>
     </tr>`).join('');
+
+  // The UK's own published impact statements for its current pledges
+  document.getElementById('cmp-impact').innerHTML = pledges
+    .filter((p) => p.impact)
+    .map((p) => `
+    <blockquote>
+      <p>${escapeHtml(p.impact.text)}</p>
+      <footer>${escapeHtml(p.name)}, ${formatGbpMillions(p.now.total)} for ${p.now.period} ·
+        <a href="${p.impact.url}" target="_blank" rel="noopener">${escapeHtml(p.impact.attribution)}</a></footer>
+    </blockquote>`).join('');
 
   // The visitor's own share
   if (taxTotal == null) return;
@@ -190,6 +197,10 @@ function renderComparison(taxTotal) {
   ];
   document.querySelector('#cmp-yours tbody').innerHTML = rows.map(([name, b, n]) => `
     <tr><th scope="row">${name}</th><td>${b}</td><td>${n}</td></tr>`).join('');
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
 function fmt(n) {

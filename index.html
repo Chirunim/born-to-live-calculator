@@ -485,6 +485,29 @@
       margin-top: 0.35rem;
       line-height: 1.4;
     }
+    .compare-impact {
+      display: grid;
+      gap: 0.75rem;
+      margin-bottom: 0.35rem;
+    }
+    .compare-impact blockquote {
+      border-left: 3px solid var(--teal-mid);
+      background: var(--surface);
+      border-radius: 0 10px 10px 0;
+      padding: 0.75rem 1rem;
+    }
+    .compare-impact blockquote p {
+      font-family: var(--ff-serif);
+      font-size: 0.95rem;
+      line-height: 1.45;
+      color: var(--text);
+    }
+    .compare-impact footer {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.4rem;
+      line-height: 1.4;
+    }
     .compare-table {
       width: 100%;
       border-collapse: collapse;
@@ -665,12 +688,12 @@
             <div class="compare-cell">
               <p class="compare-when">Before · 2022–24 average</p>
               <div class="compare-big" id="cmp-oda-before"></div>
-              <p class="compare-detail" id="cmp-oda-before-items"></p>
+              <p class="compare-detail" id="cmp-oda-before-detail"></p>
             </div>
             <div class="compare-cell" id="cmp-oda-now-cell">
               <p class="compare-when">Now · 2026–27</p>
               <div class="compare-big" id="cmp-oda-now"></div>
-              <p class="compare-detail" id="cmp-oda-now-items"></p>
+              <p class="compare-detail" id="cmp-oda-now-detail"></p>
             </div>
           </div>
 
@@ -679,6 +702,10 @@
             <thead><tr><th scope="col"></th><th scope="col">Before</th><th scope="col">Now</th><th scope="col">Change</th></tr></thead>
             <tbody></tbody>
           </table>
+
+          <p class="compare-kicker">What the UK says its current pledges will do</p>
+          <div class="compare-impact" id="cmp-impact"></div>
+          <p class="compare-detail">The UK's own published statements about each pledge as a whole, quoted as published.</p>
 
           <div class="compare-yours">
             <p class="compare-kicker">Your share, per year</p>
@@ -690,7 +717,6 @@
 
           <p class="uncertainty-note">Pledges are shown per year: the total divided by the years it covers.
             Ranges run from the core estimate to the estimate including wider basic health.
-            Item counts are what the whole budget would buy if it were all spent on that one item.
             Your share uses the latest published total public spending (2024–25) for both columns.
             <a href="methodology.html#before-vs-now">How this works</a></p>
 
