@@ -165,7 +165,7 @@ function renderComparison(taxTotal) {
   const ch = childHealthComparison(figures, taxTotal);
   const pledges = pledgeComparison(figures, taxTotal);
 
-  // Collective UK child health aid
+  // Collective UK mother and child health aid
   const odaText = (side) => `${formatGbpMillions(side.low)}–${formatGbpMillions(side.high)}`;
   const itemsText = (side) => {
     const [vax, net] = side.items;
@@ -190,7 +190,7 @@ function renderComparison(taxTotal) {
   // The visitor's own share
   if (taxTotal == null) return;
   const rows = [
-    ['Child health aid',
+    ['Mother and child health aid',
       ch.before ? formatGbpSmall(ch.before.yourPerYear) : '—',
       ch.now ? formatGbpSmall(ch.now.yourPerYear) : 'Pending'],
     ...pledges.map((p) => [p.name, formatGbpSmall(p.yourBefore), formatGbpSmall(p.yourNow)]),

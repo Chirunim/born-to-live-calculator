@@ -69,7 +69,7 @@
       "unit": "GBP millions"
     },
     "childHealthODA": {
-      "_description": "Annual UK ODA to child health (3-year average 2022–2024). LOW = sector codes (SpecificSectorCode in FCDO SID data) 13020/12240/12250/12262 + Gavi multilateral core contributions. HIGH adds 12220/13030/12261.",
+      "_description": "Annual UK health aid reaching mothers and children (3-year average 2022–2024). LOW = sector codes (SpecificSectorCode in FCDO SID data) 13020/12240/12250/12262 + Gavi multilateral core contributions. HIGH adds 12220/13030/12261.",
       "_source": "FCDO — Statistics on International Development: final UK ODA spend 2024, data underlying SID 2017–2024",
       "_url": "https://www.gov.uk/government/statistics/statistics-on-international-development-final-uk-oda-spend-2024",
       "_dataUrl": "https://assets.publishing.service.gov.uk/media/68d677144e830dd22fa1ceb2/Data-underlying-SID-2017-2024.ods",
@@ -82,7 +82,7 @@
       "unit": "GBP millions"
     },
     "childHealthODA2026_27": {
-      "_description": "Estimated UK child health ODA for 2026–27, same definition as childHealthODA (LOW/HIGH sector codes + Gavi core contributions). Drives the 'Now' side of the Before vs Now view.",
+      "_description": "Estimated UK health aid reaching mothers and children for 2026–27, same definition as childHealthODA (LOW/HIGH sector codes + Gavi core contributions). Drives the 'Now' side of the Before vs Now view.",
       "_status": "PLACEHOLDER — estimate pending ONE data team. Do not fill with an invented number. Replace low/high with the ONE data team's estimate and add _source, _url and _accessed.",
       "_source": "TODO — ONE data team",
       "_url": "TODO",

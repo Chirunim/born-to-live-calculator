@@ -2,12 +2,12 @@
 
 ## Purpose
 A public web tool supporting ONE's "Born to Live" UK petition. A visitor enters
-their salary; the tool estimates how much of their tax reaches child health
-through UK aid, shows what that buys, and links to the petition.
+their salary; the tool estimates how much of their tax becomes health aid reaching mothers and
+children through UK aid, shows what that buys, and links to the petition.
 
 ## Model
 - T = UK Income Tax + employee National Insurance (rUK and Scotland toggle)
-- childHealthODA = 3-year average (2022–2024) UK child health ODA, summed directly from
+- childHealthODA = 3-year average (2022–2024) UK health aid reaching mothers and children, summed directly from
   FCDO Statistics on International Development underlying data by sector code
   (scripts/compute_child_health.py). LOW = 13020, 12240, 12250, 12262 + Gavi core
   contributions (by channel of delivery); HIGH adds 12220, 13030, 12261
@@ -21,7 +21,7 @@ through UK aid, shows what that buys, and links to the petition.
 - Cite FCDO SID directly; mention OECD only where an OECD figure is actually used
 - "Before the cuts (2022–24) vs Now (2026–27 estimate)" view (src/compare.js): UK-wide figures first,
   then the visitor's share; ends with the petition button. Gavi/Global Fund pledges annualised
-  (total ÷ years). 2026–27 child health ODA is a placeholder ("estimate pending ONE data team",
+  (total ÷ years). 2026–27 mother and child health aid is a placeholder ("estimate pending ONE data team",
   aid.childHealthODA2026_27) until the ONE data team supplies it. Never fill it with an invented number
 
 ## A/B test
@@ -30,6 +30,9 @@ through UK aid, shows what that buys, and links to the petition.
 - Privacy-friendly analytics only (GoatCounter). Never store salary or personal data.
 
 ## Rules
+- Wording: "health aid reaching mothers and children" in sentences, "mother and child health aid"
+  in short labels. Never "child health" for the aid figure (it includes reproductive health).
+  Item names (vaccine doses, bednets, ORS + zinc) and code/key names stay as they are
 - Every figure lives in data/figures.json with source URL, year and date accessed
 - Never invent numbers. If a figure can't be sourced, leave a TODO
 - Static site only: no server, no API keys

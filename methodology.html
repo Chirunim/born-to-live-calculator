@@ -78,16 +78,16 @@
      The difference is small and does not affect the aid result materially.</p>
 
   <!-- ------------------------------------------------------------------ -->
-  <h2>Step 2 — Identifying UK child health ODA</h2>
+  <h2>Step 2 — Identifying UK mother and child health aid</h2>
   <p>Rather than estimating a chain of ratios, we go directly to FCDO's raw disbursement
-     data and sum the rows that correspond to child health.</p>
+     data and sum the rows that correspond to health aid reaching mothers and children.</p>
   <p>We use FCDO's
      <a class="source-link" href="https://www.gov.uk/government/statistics/statistics-on-international-development-final-uk-oda-spend-2024">Statistics on International Development: final UK ODA spend 2024</a>
      — specifically the
      <a class="source-link" href="https://assets.publishing.service.gov.uk/media/68d677144e830dd22fa1ceb2/Data-underlying-SID-2017-2024.ods">data underlying SID 2017–2024</a> (ODS, 19.7 MB) —
      filtering to calendar years 2022–2024 and averaging across the three years.
      Rows are selected by the sector code FCDO records against each disbursement.</p>
-  <p><strong>LOW definition</strong> — core child health programmes:</p>
+  <p><strong>LOW definition</strong> — core mother and child health programmes:</p>
   <ul>
     <li><strong>13020</strong> — Reproductive health care</li>
     <li><strong>12240</strong> — Basic nutrition</li>
@@ -116,13 +116,13 @@
   <p>The computation is reproducible via <code>scripts/compute_child_health.py</code> in the source repository.</p>
 
   <!-- ------------------------------------------------------------------ -->
-  <h2>Step 3 — Your contribution to child health (C)</h2>
+  <h2>Step 3 — Your contribution to mother and child health aid (C)</h2>
   <p>HMRC's Annual Tax Summary allocates every taxpayer's bill across government spending areas
      in proportion to HM Treasury's total expenditure on services (£1,156.4bn in 2024–25).
-     We use the same denominator to convert your tax into a proportional share of UK child
-     health ODA.</p>
+     We use the same denominator to convert your tax into a proportional share of the UK's health aid
+     reaching mothers and children.</p>
   <div class="formula">C = T × (childHealthODA ÷ expenditure on services)</div>
-  <p>C is the estimated amount of your tax that reaches child health programmes through UK
+  <p>C is the estimated amount of your tax that becomes health aid reaching mothers and children through UK
      official development assistance in a given year.</p>
   <p>We also show a per-day figure: <code>C ÷ 365</code>.</p>
   <ul>
@@ -152,7 +152,7 @@
 
   <!-- ------------------------------------------------------------------ -->
   <h2>Step 5 — Monte Carlo uncertainty</h2>
-  <p>We are not certain whether the LOW or HIGH definition of child health ODA better reflects
+  <p>We are not certain whether the LOW or HIGH definition of mother and child health aid better reflects
      where UK money has the most impact — and unit costs vary by country and year. To show
      this uncertainty honestly, we run 10,000 simulations, each time drawing
      <strong>childHealthODA</strong> uniformly from between the LOW and HIGH values, and drawing
@@ -165,7 +165,7 @@
   <h2 id="before-vs-now">Before the cuts (2022–24) vs Now (2026–27 estimate)</h2>
   <p>This section compares UK aid before the cuts with now. It shows the UK-wide figure first,
      then your own share.</p>
-  <p><strong>UK child health aid, per year.</strong> "Before" is the 2022–24 average from Step 2
+  <p><strong>UK mother and child health aid, per year.</strong> "Before" is the 2022–24 average from Step 2
      (£486m–£661m). The vaccine-dose and bednet figures are what that whole budget would buy if it
      were all spent on that one item, using the unit costs in Step 4 and the same 10th–90th percentile
      simulation as Step 5. "Now" (2026–27) is <strong>estimate pending ONE data team</strong>: there is
@@ -183,9 +183,9 @@
         (<a class="source-link" href="https://www.gov.uk/government/publications/uk-biological-security-strategy-implementation-report-july-2025-july-2026/uk-biological-security-strategy-implementation-report-july-2025-july-2026">GOV.UK Biological Security Strategy implementation report, 14 July 2026</a>;
         also in the <a class="source-link" href="https://www.gov.uk/government/speeches/foreign-secretary-statement-on-international-development-19-march">Foreign Secretary's statement of 19 March 2026</a>). Change: −15%.</li>
   </ul>
-  <p>Gavi core contributions are already counted inside child health aid (Step 2). The Global Fund
+  <p>Gavi core contributions are already counted inside mother and child health aid (Step 2). The Global Fund
      covers HIV, TB and malaria for all ages. The pledge rows show the pledges side by side. Do not add
-     them to the child health figure.</p>
+     them to the mother and child health aid figure.</p>
   <p><strong>Your share.</strong> Your share uses the same method as Step 3: your tax × the UK amount ÷
      total expenditure on services. Both columns use the latest published total (2024–25), so the
      change you see comes only from the change in UK aid.</p>
