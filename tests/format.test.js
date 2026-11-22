@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { formatItemAmount, formatInterval, describeItem, noTaxMessage } from '../src/format.js';
 import { calculateTax } from '../src/tax.js';
-import { runModel } from '../src/model.js';
+import { runModel, unitCostUsd } from '../src/model.js';
 import figures from '../data/figures.json';
 
-const SINGULAR = ['vaccine dose', 'bednet', 'ORS + zinc treatment'];
-const PLURAL   = ['vaccine doses', 'bednets', 'ORS + zinc treatments'];
+const SINGULAR = ['child fully vaccinated (3 doses)', 'bednet', 'ORS + zinc treatment'];
+const PLURAL   = ['children fully vaccinated (3 doses each)', 'bednets', 'ORS + zinc treatments'];
 const PA = figures.tax.personalAllowance;
 
 // Item lines for one estimate ('low' = core, 'high' = including wider basic health)
@@ -80,9 +80,49 @@ describe('100-year cap', () => {
 // ---------------------------------------------------------------------------
 // Worked salaries (rUK 2026-27, current figures.json)
 // C = tax × childHealthODA ÷ 1,156,400, with LOW = 486.4 (core) and HIGH = 661.3
-// (including wider basic health). Unit costs: one per item, currently the range
-// midpoint × 0.7874: vaccine £1.27953, bednet £3.74015, ORS + zinc £0.25197
+// (including wider basic health). Unit costs (UNICEF purchase prices) × 0.7874:
+// vaccine course $2.55 = £2.00787, bednet $1.94 = £1.52756, ORS + zinc $0.225 = £0.17717
 // ---------------------------------------------------------------------------
+describe('unit costs (UNICEF purchase prices)', () => {
+  const { costs } = figures;
+
+  it('vaccine: $0.85 per dose × 3 doses = $2.55 for one fully vaccinated child', () => {
+    expect(costs.vaccineDtp).toMatchObject({ pricePerDose: 0.85, dosesPerCourse: 3 });
+    expect(unitCostUsd(costs.vaccineDtp)).toBeCloseTo(2.55, 10);
+  });
+
+  it('bednet: $1.94 (UNICEF weighted average price, 2021)', () => {
+    expect(unitCostUsd(costs.bednet)).toBe(1.94);
+    expect(costs.bednet._year).toBe('2021');
+  });
+
+  it('ORS + zinc course (co-pack S1580022): 2 × $0.079 + 10 × $0.0067 = $0.225', () => {
+    const [ors, zinc] = costs.orsTreatment.components;
+    expect(ors).toMatchObject({ productCode: 'S1561120', packPrice: 7.90, packSize: 100, quantity: 2 });
+    expect(zinc).toMatchObject({ productCode: 'S1580020', packPrice: 0.67, packSize: 100, quantity: 10 });
+    expect(costs.orsTreatment.courseDefinition.productCode).toBe('S1580022');
+    expect(unitCostUsd(costs.orsTreatment)).toBeCloseTo(0.225, 10);
+  });
+
+  it('all three are purchase prices with a source, URL, year and accessed date', () => {
+    for (const key of ['vaccineDtp', 'bednet', 'orsTreatment']) {
+      const c = costs[key];
+      expect(c._basis).toBe('purchase');
+      expect(c._url).toMatch(/^https:\/\//);
+      expect(c._source).toMatch(/UNICEF/);
+      expect(c._year).toMatch(/^\d{4}$/);
+      expect(c._accessed).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(c).not.toHaveProperty('low');
+      expect(c).not.toHaveProperty('high');
+    }
+  });
+
+  it('a missing component makes the cost TODO, not a wrong number', () => {
+    expect(unitCostUsd({ components: [{ packPrice: 'TODO', packSize: 100, quantity: 2 }] })).toBe('TODO');
+    expect(unitCostUsd({ pricePerDose: 'TODO', dosesPerCourse: 3 })).toBe('TODO');
+  });
+});
+
 describe('runModel', () => {
   const T = calculateTax(30000, 'ruk', figures).total;   // £4,880.40
   const { estimates } = runModel(T, figures);
@@ -131,26 +171,41 @@ describe('£15,000 (tax £680.40)', () => {
     expect(noTaxMessage(15000, tax.total, PA)).toBeNull();
   });
 
-  it('core (C = £0.28619): vaccine every 4.5 years, bednet every 13.1 years, 1 ORS + zinc', () => {
+  it('core (C = £0.28619): child vaccinated every 7 years, bednet every 5.3 years, 2 ORS + zinc', () => {
+    // 0.1425 children a year → 84 months; 0.1873 nets → 64 months; 1.62 courses
     expect(lines(15000, 'low')).toEqual([
-      'One vaccine dose every 4.5 years', 'One bednet every 13.1 years', '1 ORS + zinc treatment',
+      'One child fully vaccinated (3 doses) every 7 years', 'One bednet every 5.3 years', '2 ORS + zinc treatments',
     ]);
   });
 
-  it('wider (C = £0.38909): vaccine every 3.3 years, bednet every 9.6 years, 2 ORS + zinc', () => {
+  it('wider (C = £0.38909): child vaccinated every 5.2 years, bednet every 3.9 years, 2 ORS + zinc', () => {
     expect(lines(15000, 'high')).toEqual([
-      'One vaccine dose every 3.3 years', 'One bednet every 9.6 years', '2 ORS + zinc treatments',
+      'One child fully vaccinated (3 doses) every 5.2 years', 'One bednet every 3.9 years', '2 ORS + zinc treatments',
     ]);
   });
 });
 
 describe('£25,000 (tax £3,480.40)', () => {
-  it('core (C = £1.46391): 1 vaccine dose, bednet every 2.6 years, 6 ORS + zinc', () => {
-    expect(lines(25000, 'low')).toEqual(['1 vaccine dose', 'One bednet every 2.6 years', '6 ORS + zinc treatments']);
+  it('core (C = £1.46391): child vaccinated every 16 months, bednet every 13 months, 8 ORS + zinc', () => {
+    expect(lines(25000, 'low')).toEqual([
+      'One child fully vaccinated (3 doses) every 16 months', 'One bednet every 13 months', '8 ORS + zinc treatments',
+    ]);
   });
 
-  it('wider (C = £1.99030): 2 vaccine doses, bednet every 23 months, 8 ORS + zinc', () => {
-    expect(lines(25000, 'high')).toEqual(['2 vaccine doses', 'One bednet every 23 months', '8 ORS + zinc treatments']);
+  it('wider (C = £1.99030): child vaccinated every 12 months, 1 bednet, 11 ORS + zinc', () => {
+    expect(lines(25000, 'high')).toEqual([
+      'One child fully vaccinated (3 doses) every 12 months', '1 bednet', '11 ORS + zinc treatments',
+    ]);
+  });
+});
+
+describe('£30,000 (tax £4,880.40)', () => {
+  it('core: 1 child fully vaccinated, 1 bednet, 12 ORS + zinc', () => {
+    expect(lines(30000, 'low')).toEqual(['1 child fully vaccinated (3 doses)', '1 bednet', '12 ORS + zinc treatments']);
+  });
+
+  it('wider: 1 child fully vaccinated, 2 bednets, 16 ORS + zinc', () => {
+    expect(lines(30000, 'high')).toEqual(['1 child fully vaccinated (3 doses)', '2 bednets', '16 ORS + zinc treatments']);
   });
 });
 

@@ -74,18 +74,18 @@ describe('pledges annualised', () => {
 });
 
 describe('UK mother and child health aid before the cuts', () => {
-  // Core £486.4m, wider £661.3m ÷ vaccine £1.27953 = 380.1m / 516.8m;
-  // ÷ bednet £3.74015 = 130.0m / 176.8m
+  // Core £486.4m, wider £661.3m ÷ vaccine course £2.00787 = 242.2m / 329.4m children;
+  // ÷ bednet £1.52756 = 318.4m / 432.9m
   const { before } = childHealthComparison(figures, null);
 
   it('is the whole 2022–24 budget, for each estimate', () => {
     const [vax, net] = before.items;
-    expect(vax.low / 1e6).toBeCloseTo(380.14, 1);
-    expect(vax.high / 1e6).toBeCloseTo(516.83, 1);
-    expect(net.low / 1e6).toBeCloseTo(130.05, 1);
-    expect(net.high / 1e6).toBeCloseTo(176.81, 1);
-    expect(formatBigRange(vax.low, vax.high)).toBe('380–520 million');
-    expect(formatBigRange(net.low, net.high)).toBe('130–180 million');
+    expect(vax.low / 1e6).toBeCloseTo(242.25, 1);
+    expect(vax.high / 1e6).toBeCloseTo(329.35, 1);
+    expect(net.low / 1e6).toBeCloseTo(318.42, 1);
+    expect(net.high / 1e6).toBeCloseTo(432.91, 1);
+    expect(formatBigRange(vax.low, vax.high)).toBe('240–330 million');
+    expect(formatBigRange(net.low, net.high)).toBe('320–430 million');
   });
 
   it('has no personal share without a tax figure', () => {

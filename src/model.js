@@ -21,15 +21,25 @@ export const ESTIMATES = [
 
 const isMissing = (v) => v === 'TODO' || v === null || v === undefined;
 
+const isNum = (v) => typeof v === 'number' && Number.isFinite(v);
+
 /**
- * One unit cost in USD. Uses the item's single published `value`.
- * Interim, until single published prices are added (Step B): the midpoint of the
- * existing low/high range, so no new number is introduced.
+ * One unit cost in USD (UNICEF purchase price), computed from figures.json so each step is auditable:
+ *   components     → Σ quantity × packPrice ÷ packSize   (ORS + zinc course)
+ *   pricePerDose   → pricePerDose × dosesPerCourse        (vaccine course)
+ *   value          → value                                (bednet)
+ * Returns 'TODO' if any input is missing.
  */
 export function unitCostUsd(cost) {
-  if (typeof cost.value === 'number') return cost.value;
-  if (typeof cost.low === 'number' && typeof cost.high === 'number') return (cost.low + cost.high) / 2;
-  return 'TODO';
+  if (Array.isArray(cost.components)) {
+    const parts = cost.components.map(({ packPrice, packSize, quantity }) =>
+      [packPrice, packSize, quantity].every(isNum) ? quantity * packPrice / packSize : NaN);
+    return parts.every(isNum) ? parts.reduce((a, b) => a + b, 0) : 'TODO';
+  }
+  if ('pricePerDose' in cost) {
+    return isNum(cost.pricePerDose) && isNum(cost.dosesPerCourse) ? cost.pricePerDose * cost.dosesPerCourse : 'TODO';
+  }
+  return isNum(cost.value) ? cost.value : 'TODO';
 }
 
 /**

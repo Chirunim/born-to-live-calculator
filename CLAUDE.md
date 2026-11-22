@@ -12,7 +12,11 @@ children through UK aid, shows what that buys, and links to the petition.
   (scripts/compute_child_health.py). LOW = 13020, 12240, 12250, 12262 + Gavi core
   contributions (by channel of delivery); HIGH adds 12220, 13030, 12261
 - E = total expenditure on services (HM Treasury PESA; the HMRC Annual Tax Summary denominator)
-- C = T × childHealthODA ÷ E, converted to items (vaccine doses, bednets, ORS + zinc) using unit costs
+- C = T × childHealthODA ÷ E, converted to items (children fully vaccinated with 3 pentavalent doses,
+  bednets, full ORS + zinc courses) using unit costs
+- Unit costs: UNICEF Supply Division purchase prices only, _basis: "purchase", one per item. Totals are
+  computed in src/model.js from components stored in figures.json (price per dose × doses; pack price ÷
+  pack size × quantity), never typed in as a pre-computed number
 - Two labelled estimates, side by side: "Core mother and child programmes" (LOW) and
   "Including wider basic health" (HIGH), each with one sentence on what it includes (src/model.js ESTIMATES).
   One unit cost per item

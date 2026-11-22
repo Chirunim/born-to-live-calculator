@@ -30,8 +30,8 @@ const ITEM_ICONS = [
   </svg>`,
 ];
 
-const ITEM_SHORT_NAMES    = ['vaccine doses', 'bednets', 'ORS + zinc treatments'];
-const ITEM_SINGULAR_NAMES = ['vaccine dose', 'bednet', 'ORS + zinc treatment'];
+const ITEM_SHORT_NAMES    = ['children fully vaccinated (3 doses each)', 'bednets', 'ORS + zinc treatments'];
+const ITEM_SINGULAR_NAMES = ['child fully vaccinated (3 doses)', 'bednet', 'ORS + zinc treatment'];
 
 let figures = null;
 let variant = null;
@@ -161,7 +161,7 @@ function renderComparison(taxTotal) {
   const odaText = (side) => `${formatGbpMillions(side.low)}–${formatGbpMillions(side.high)}`;
   const itemsText = (side) => {
     const [vax, net] = side.items;
-    return `≈ ${formatBigRange(vax.low, vax.high)} vaccine doses, or ${formatBigRange(net.low, net.high)} bednets`;
+    return `≈ ${formatBigRange(vax.low, vax.high)} children fully vaccinated, or ${formatBigRange(net.low, net.high)} bednets`;
   };
   document.getElementById('cmp-oda-before').textContent = ch.before ? odaText(ch.before) : '—';
   document.getElementById('cmp-oda-before-items').textContent = ch.before ? itemsText(ch.before) : '';
