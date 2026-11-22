@@ -134,6 +134,8 @@
   <!-- ------------------------------------------------------------------ -->
   <h2>Step 4 — What C buys (unit costs)</h2>
   <p>We convert C into three tangible items using published procurement prices.
+     Each item uses one cost: for now, the midpoint of the range below, until single published
+     prices replace these ranges.
      All costs are in USD and converted to GBP at the Bank of England 2024 annual average rate
      (<strong>1 USD = £0.7874</strong>, source:
      <a class="source-link" href="https://www.bankofengland.co.uk/statistics/exchange-rates">Bank of England</a>).</p>
@@ -151,15 +153,19 @@
   </ul>
 
   <!-- ------------------------------------------------------------------ -->
-  <h2>Step 5 — Monte Carlo uncertainty</h2>
-  <p>We are not certain whether the LOW or HIGH definition of mother and child health aid better reflects
-     where UK money has the most impact — and unit costs vary by country and year. To show
-     this uncertainty honestly, we run 10,000 simulations, each time drawing
-     <strong>childHealthODA</strong> uniformly from between the LOW and HIGH values, and drawing
-     each unit cost independently from a uniform distribution between its low and high values.</p>
-  <p>The results shown are the <strong>10th–90th percentile range</strong> across those 10,000 draws,
-     with the median (~50th percentile) shown as the typical estimate.</p>
-  <p>This means: in 80% of plausible scenarios, the true figure lies within the shown range.</p>
+  <h2 id="two-estimates">Step 5 — Two estimates</h2>
+  <p>There is no single agreed answer to which UK aid counts as health aid reaching mothers and
+     children, so we show two estimates side by side. They use the same tax, the same method and
+     the same unit costs, and differ only in which kinds of health aid they count (Step 2):</p>
+  <ul>
+    <li><strong>Core mother and child programmes</strong> (the LOW definition, £486m a year):
+        reproductive health care, basic nutrition, infectious disease and malaria control, plus UK
+        core funding for Gavi, the Vaccine Alliance.</li>
+    <li><strong>Including wider basic health</strong> (the HIGH definition, £661m a year):
+        everything in the core estimate, plus basic health care, family planning and health education.</li>
+  </ul>
+  <p>Neither is a best guess with a margin of error around it. Each is a calculation from published
+     figures, and the difference between them shows how much the answer depends on that choice.</p>
 
   <!-- ------------------------------------------------------------------ -->
   <h2 id="before-vs-now">Before the cuts (2022–24) vs Now (2026–27 estimate)</h2>
@@ -167,8 +173,8 @@
      then your own share.</p>
   <p><strong>UK mother and child health aid, per year.</strong> "Before" is the 2022–24 average from Step 2
      (£486m–£661m). The vaccine-dose and bednet figures are what that whole budget would buy if it
-     were all spent on that one item, using the unit costs in Step 4 and the same 10th–90th percentile
-     simulation as Step 5. "Now" (2026–27) is <strong>estimate pending ONE data team</strong>: there is
+     were all spent on that one item, using the unit costs in Step 4. Each range runs from the core estimate to the
+     estimate including wider basic health (Step 5). "Now" (2026–27) is <strong>estimate pending ONE data team</strong>: there is
      no published 2026–27 figure on the same definition yet, so we show a placeholder rather than a guess.</p>
   <p><strong>UK pledges, per year.</strong> Gavi and Global Fund pledges cover several years,
      so we divide each total by the number of years it covers. This assumes the money is spread evenly.</p>

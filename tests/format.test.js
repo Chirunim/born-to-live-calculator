@@ -8,18 +8,12 @@ const SINGULAR = ['vaccine dose', 'bednet', 'ORS + zinc treatment'];
 const PLURAL   = ['vaccine doses', 'bednets', 'ORS + zinc treatments'];
 const PA = figures.tax.personalAllowance;
 
-// Every Monte Carlo draw at the midpoint of its range → p10 = p50 = p90,
-// so results can be checked by hand.
-const midpoint = () => 0.5;
-
-function cards(salary, rng = midpoint) {
+// Item lines for one estimate ('low' = core, 'high' = including wider basic health)
+function lines(salary, key) {
   const tax = calculateTax(salary, 'ruk', figures);
-  const model = runModel(tax.total, figures, rng);
-  return model.items.map((item, i) => describeItem(item, SINGULAR[i], PLURAL[i]));
+  const est = runModel(tax.total, figures).estimates.find((e) => e.key === key);
+  return est.items.map((item, i) => describeItem(item.count, SINGULAR[i], PLURAL[i]));
 }
-
-// Everything the visitor would read on a card
-const text = (c) => [c.headline, c.label, c.detail].filter(Boolean).join(' ');
 
 // ---------------------------------------------------------------------------
 // formatInterval / formatItemAmount
@@ -68,30 +62,53 @@ describe('100-year cap', () => {
     expect(formatItemAmount(0.0001, 'bednet', 'bednets')).toBe(LIFETIME);
   });
 
-  it('caps the card headline and drops "typical" when the whole range is capped', () => {
-    const c = describeItem({ p10: 0.001, p50: 0.002, p90: 0.003 }, 'bednet', 'bednets');
-    expect(c).toMatchObject({ mode: 'frequency', headline: 'Less than one bednet in a lifetime of tax at this salary', detail: '' });
+  it('capitalises the item line', () => {
+    expect(describeItem(0.0001, 'bednet', 'bednets')).toBe('Less than one bednet in a lifetime of tax at this salary');
+    expect(describeItem(0.02, 'bednet', 'bednets')).toBe('One bednet every 50 years');
   });
 
-  it('caps only the end of the range that needs it', () => {
-    const c = describeItem({ p10: 0.005, p50: 0.02, p90: 0.05 }, 'bednet', 'bednets');
-    expect(c.headline).toBe('One bednet every 50 years');
-    expect(c.detail).toBe('typical · range: every 20 years to more than 100 years');
-  });
-
-  it('£12,571 (tax £0.28) — every item capped, no five-figure years', () => {
-    for (const c of cards(12571)) {
-      expect(c.headline).toMatch(/^Less than one .* in a lifetime of tax at this salary$/);
-      expect(text(c)).not.toMatch(/\d,\d{3}(\.\d)? years/);
+  it('£12,571 (tax £0.28) — every item capped in both estimates, no five-figure years', () => {
+    for (const key of ['low', 'high']) {
+      for (const line of lines(12571, key)) {
+        expect(line).toMatch(/^Less than one .* in a lifetime of tax at this salary$/);
+        expect(line).not.toMatch(/\d,\d{3}(\.\d)? years/);
+      }
     }
   });
 });
 
 // ---------------------------------------------------------------------------
 // Worked salaries (rUK 2026-27, current figures.json)
-// C = tax × (childHealthODA midpoint 573.85 ÷ 1,156,400); unit costs at range
-// midpoints × 0.7874: vaccine £1.27953, bednet £3.74015, ORS + zinc £0.25197
+// C = tax × childHealthODA ÷ 1,156,400, with LOW = 486.4 (core) and HIGH = 661.3
+// (including wider basic health). Unit costs: one per item, currently the range
+// midpoint × 0.7874: vaccine £1.27953, bednet £3.74015, ORS + zinc £0.25197
 // ---------------------------------------------------------------------------
+describe('runModel', () => {
+  const T = calculateTax(30000, 'ruk', figures).total;   // £4,880.40
+  const { estimates } = runModel(T, figures);
+
+  it('returns exactly two labelled estimates, core first', () => {
+    expect(estimates.map((e) => e.key)).toEqual(['low', 'high']);
+    expect(estimates.map((e) => e.label)).toEqual(['Core mother and child programmes', 'Including wider basic health']);
+    for (const e of estimates) expect(e.includes).toMatch(/\.$/);
+  });
+
+  it('£30,000: £2.05 core, £2.79 including wider basic health', () => {
+    expect(estimates[0].annualGbp).toBeCloseTo(2.05277, 4);
+    expect(estimates[1].annualGbp).toBeCloseTo(2.79091, 4);
+    expect(estimates[0].perDayGbp).toBeCloseTo(2.05277 / 365, 6);
+  });
+
+  it('is deterministic — same input, same output', () => {
+    expect(runModel(T, figures)).toEqual(runModel(T, figures));
+  });
+
+  it('returns null while a figure is TODO', () => {
+    const f = { ...figures, aid: { ...figures.aid, childHealthODA: { ...figures.aid.childHealthODA, high: 'TODO' } } };
+    expect(runModel(T, f)).toBeNull();
+  });
+});
+
 describe('£12,000 — below the personal allowance', () => {
   it('pays no tax and gets the friendly message', () => {
     const tax = calculateTax(12000, 'ruk', figures);
@@ -107,48 +124,44 @@ describe('£12,000 — below the personal allowance', () => {
   });
 });
 
-describe('£15,000', () => {
-  // Tax 680.40 → C = £0.33764
+describe('£15,000 (tax £680.40)', () => {
   it('shows no friendly message', () => {
     const tax = calculateTax(15000, 'ruk', figures);
     expect(tax.total).toBeCloseTo(680.40, 2);
     expect(noTaxMessage(15000, tax.total, PA)).toBeNull();
   });
 
-  it('vaccine: 0.264 a year → 45 months → every 3.8 years', () => {
-    expect(cards(15000)[0]).toMatchObject({ mode: 'frequency', headline: 'One vaccine dose every 3.8 years' });
+  it('core (C = £0.28619): vaccine every 4.5 years, bednet every 13.1 years, 1 ORS + zinc', () => {
+    expect(lines(15000, 'low')).toEqual([
+      'One vaccine dose every 4.5 years', 'One bednet every 13.1 years', '1 ORS + zinc treatment',
+    ]);
   });
 
-  it('bednet: 0.0903 a year → 133 months → every 11.1 years', () => {
-    expect(cards(15000)[1]).toMatchObject({ mode: 'frequency', headline: 'One bednet every 11.1 years' });
-  });
-
-  it('ORS + zinc: 1.34 a year → 1, singular', () => {
-    expect(cards(15000)[2]).toMatchObject({ mode: 'count', headline: '1', label: 'ORS + zinc treatment' });
-  });
-});
-
-describe('£25,000', () => {
-  // Tax 3,480.40 → C = £1.72711
-  it('vaccine: 1.35 a year → 1, singular', () => {
-    expect(cards(25000)[0]).toMatchObject({ mode: 'count', headline: '1', label: 'vaccine dose' });
-  });
-
-  it('bednet: 0.462 a year → 26 months → every 2.2 years', () => {
-    expect(cards(25000)[1]).toMatchObject({ mode: 'frequency', headline: 'One bednet every 2.2 years' });
-  });
-
-  it('ORS + zinc: 6.85 a year → 7', () => {
-    expect(cards(25000)[2]).toMatchObject({ mode: 'count', headline: '7', label: 'ORS + zinc treatments' });
+  it('wider (C = £0.38909): vaccine every 3.3 years, bednet every 9.6 years, 2 ORS + zinc', () => {
+    expect(lines(15000, 'high')).toEqual([
+      'One vaccine dose every 3.3 years', 'One bednet every 9.6 years', '2 ORS + zinc treatments',
+    ]);
   });
 });
 
-describe('never shows "0 items" with real Monte Carlo draws', () => {
+describe('£25,000 (tax £3,480.40)', () => {
+  it('core (C = £1.46391): 1 vaccine dose, bednet every 2.6 years, 6 ORS + zinc', () => {
+    expect(lines(25000, 'low')).toEqual(['1 vaccine dose', 'One bednet every 2.6 years', '6 ORS + zinc treatments']);
+  });
+
+  it('wider (C = £1.99030): 2 vaccine doses, bednet every 23 months, 8 ORS + zinc', () => {
+    expect(lines(25000, 'high')).toEqual(['2 vaccine doses', 'One bednet every 23 months', '8 ORS + zinc treatments']);
+  });
+});
+
+describe('never shows "0 items"', () => {
   for (const salary of [12571, 13000, 15000, 25000, 60000]) {
     it(`£${salary.toLocaleString('en-GB')}`, () => {
-      for (const c of cards(salary, Math.random)) {
-        expect(text(c)).not.toMatch(/(^|[^\d.,])0(?![\d.,])/);
-        expect(text(c)).not.toMatch(/every 0 /);
+      for (const key of ['low', 'high']) {
+        for (const line of lines(salary, key)) {
+          expect(line).not.toMatch(/(^|[^\d.,])0(?![\d.,])/);
+          expect(line).not.toMatch(/every 0 /);
+        }
       }
     });
   }

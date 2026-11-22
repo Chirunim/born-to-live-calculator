@@ -41,40 +41,12 @@ export function formatInterval(n) {
   return `every ${years.toLocaleString('en-GB')} years`;
 }
 
-/** Short form for a range end: "every 20 months" below 1 a year, else "2 a year". */
-function formatRangeEnd(n) {
-  if (isCapped(n)) return `more than ${CAP_YEARS} years`;
-  return n >= 1 ? `${Math.round(n).toLocaleString('en-GB')} a year` : formatInterval(n);
-}
-
 /**
- * Build the text for one item card from its 10th/50th/90th percentile yearly counts.
- * mode 'count'     — every percentile rounds to at least 1: the usual "p10–p90" range.
- * mode 'frequency' — some of the range is below 1: describe it as a frequency.
+ * One item line for one estimate, e.g. "7 ORS + zinc treatments" or
+ * "One bednet every 18 months". null when there is nothing to show (never "0 …").
  */
-export function describeItem({ p10, p50, p90 }, singular, plural) {
-  const r = (n) => Math.round(n).toLocaleString('en-GB');
-
-  if (Math.round(p10) >= 1) {
-    const same = Math.round(p10) === Math.round(p90);
-    return {
-      mode: 'count',
-      headline: same ? r(p50) : `${r(p10)}–${r(p90)}`,
-      label: same && Math.round(p50) === 1 ? singular : plural,
-      detail: same ? 'typical' : `~${r(p50)} typical`,
-    };
-  }
-
-  const low = formatRangeEnd(p90);   // most items = shortest wait
-  const high = formatRangeEnd(p10);
-  return {
-    mode: 'frequency',
-    headline: capitalise(formatItemAmount(p50, singular, plural)),
-    label: null,  // headline already names the item
-    detail: low === high
-      ? (isCapped(p50) ? '' : 'typical')
-      : `typical · range: ${low} to ${high}`,
-  };
+export function describeItem(count, singular, plural) {
+  return capitalise(formatItemAmount(count, singular, plural));
 }
 
 /**

@@ -110,30 +110,16 @@ function renderResult(tax, model, salary, region) {
   document.getElementById('res-ni').textContent          = fmt(tax.ni);
   document.getElementById('res-total-tax').textContent   = fmt(tax.total);
 
-  // Annual contribution + per-day
-  // Both variant blocks carry their own copy of these figures
-  const annual = model.perDayGbp * 365;
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  for (const suffix of ['', '-story']) {
-    const annualEl = document.getElementById(`res-annual${suffix}`);
-    if (annualEl) {
-      if (reduceMotion) annualEl.textContent = fmtAnnual(annual);
-      else              countUp(annualEl, annual);
-    }
-    const perDayEl = document.getElementById(`res-per-day${suffix}`);
-    if (perDayEl) perDayEl.textContent = fmtSmall(model.perDayGbp);
-  }
-
-  // Items — write both variant blocks
-  renderItems(model.items, 'numbers');
-  renderItems(model.items, 'story');
+  // Two labelled estimates — write both variant blocks
+  renderEstimates(model.estimates, 'numbers', 'That could fund approximately');
+  renderEstimates(model.estimates, 'story', 'In a year, roughly enough to fund');
 
   renderComparison(tax.total);
 
   resultEl.hidden = false;
   resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-  // Stagger-animate the icon cards
+  // Stagger-animate the estimate cards
   requestAnimationFrame(animateCards);
 
   // Analytics
@@ -144,20 +130,26 @@ function renderResult(tax, model, salary, region) {
   cleanupTime   = attachTimeTracking(variant, Date.now());
 }
 
-function renderItems(items, v) {
-  const grid = document.getElementById(`items-${v}`);
-  grid.innerHTML = items.map((item, i) => {
-    const plural   = ITEM_SHORT_NAMES[i] ?? item.names;
-    const singular = ITEM_SINGULAR_NAMES[i] ?? item.name;
-    const d = describeItem(item, singular, plural);
-    return `
-    <div class="item-card">
-      ${ITEM_ICONS[i] ?? ''}
-      <div class="item-range ${d.mode}">${d.headline}</div>
-      ${d.label ? `<div class="item-name">${d.label}</div>` : ''}
-      ${d.detail ? `<div class="item-median">${d.detail}</div>` : ''}
-    </div>`;
-  }).join('');
+function renderEstimates(estimates, v, itemsLead) {
+  const grid = document.getElementById(`estimates-${v}`);
+  grid.innerHTML = estimates.map((est) => `
+    <div class="estimate-card">
+      <p class="estimate-label">${est.label}</p>
+      <div class="estimate-amount" data-gbp="${est.annualGbp}">${fmtAnnual(est.annualGbp)}</div>
+      <div class="per-day-pill">About <strong>${fmtSmall(est.perDayGbp)}</strong> every day</div>
+      <p class="estimate-includes">${est.includes}</p>
+      <p class="items-label">${itemsLead}</p>
+      <ul class="item-list">
+        ${est.items.map((item, i) => {
+          const line = describeItem(item.count, ITEM_SINGULAR_NAMES[i] ?? item.name, ITEM_SHORT_NAMES[i] ?? item.names);
+          return line ? `<li>${ITEM_ICONS[i] ?? ''}<span>${line}</span></li>` : '';
+        }).join('')}
+      </ul>
+    </div>`).join('');
+
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    grid.querySelectorAll('.estimate-amount').forEach((el) => countUp(el, Number(el.dataset.gbp)));
+  }
 }
 
 // Before the cuts (2022–24) vs Now (2026–27 estimate)
@@ -169,7 +161,7 @@ function renderComparison(taxTotal) {
   const odaText = (side) => `${formatGbpMillions(side.low)}–${formatGbpMillions(side.high)}`;
   const itemsText = (side) => {
     const [vax, net] = side.items;
-    return `≈ ${formatBigRange(vax.p10, vax.p90)} vaccine doses, or ${formatBigRange(net.p10, net.p90)} bednets`;
+    return `≈ ${formatBigRange(vax.low, vax.high)} vaccine doses, or ${formatBigRange(net.low, net.high)} bednets`;
   };
   document.getElementById('cmp-oda-before').textContent = ch.before ? odaText(ch.before) : '—';
   document.getElementById('cmp-oda-before-items').textContent = ch.before ? itemsText(ch.before) : '';
@@ -189,10 +181,11 @@ function renderComparison(taxTotal) {
 
   // The visitor's own share
   if (taxTotal == null) return;
+  const shareText = ({ low, high }) => `${formatGbpSmall(low)}–${formatGbpSmall(high)}`;
   const rows = [
     ['Mother and child health aid',
-      ch.before ? formatGbpSmall(ch.before.yourPerYear) : '—',
-      ch.now ? formatGbpSmall(ch.now.yourPerYear) : 'Pending'],
+      ch.before ? shareText(ch.before.yourPerYear) : '—',
+      ch.now ? shareText(ch.now.yourPerYear) : 'Pending'],
     ...pledges.map((p) => [p.name, formatGbpSmall(p.yourBefore), formatGbpSmall(p.yourNow)]),
   ];
   document.querySelector('#cmp-yours tbody').innerHTML = rows.map(([name, b, n]) => `
@@ -228,7 +221,7 @@ function countUp(el, target, duration = 900) {
 }
 
 function animateCards() {
-  document.querySelectorAll('.item-card').forEach((card, i) => {
+  document.querySelectorAll('.estimate-card').forEach((card, i) => {
     setTimeout(() => card.classList.add('visible'), i * 100);
   });
 }

@@ -42,26 +42,27 @@ export function pledgeComparison(figures, taxTotal = null) {
 }
 
 /**
- * UK child health aid per year, before vs now, as GBP and item equivalents.
+ * UK mother and child health aid per year, before vs now, for each of the two
+ * estimates (core, and including wider basic health), as GBP and item equivalents.
  * A side is null while its figure is still TODO — the 2026–27 side stays null
  * until the ONE data team's estimate is added to figures.json.
  */
-export function childHealthComparison(figures, taxTotal = null, rng = Math.random) {
+export function childHealthComparison(figures, taxTotal = null) {
   const E = figures.aid.expenditureOnServices.value;          // GBP millions
   const nowOda = figures.aid.childHealthODA2026_27;
 
   const side = (oda) => {
     if (!oda || !isNum(oda.low) || !isNum(oda.high)) return null;
     const f = { ...figures, aid: { ...figures.aid, childHealthODA: oda } };
-    // With T = E (in GBP), C = T × ODA ÷ E is the whole UK child health budget
-    const collective = runModel(E * 1e6, f, rng);
+    // With T = E (in GBP), C = T × ODA ÷ E is the whole UK budget for that estimate
+    const collective = runModel(E * 1e6, f);
     if (!collective) return null;
-    const mid = (oda.low + oda.high) / 2;
+    const [core, wider] = collective.estimates;
     return {
       low: oda.low,
       high: oda.high,
-      items: collective.items,
-      yourPerYear: taxTotal == null ? null : taxTotal * mid / E,
+      items: core.items.map((item, i) => ({ key: item.key, low: item.count, high: wider.items[i].count })),
+      yourPerYear: taxTotal == null ? null : { low: taxTotal * oda.low / E, high: taxTotal * oda.high / E },
     };
   };
 

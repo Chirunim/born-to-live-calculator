@@ -1,10 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { annualise, pledgeComparison, childHealthComparison } from '../src/compare.js';
-import { formatBigCount, formatBigRange, formatGbpMillions, formatGbpSmall } from '../src/format.js';
+import { formatBigRange, formatGbpMillions, formatGbpSmall } from '../src/format.js';
 import { calculateTax } from '../src/tax.js';
 import figures from '../data/figures.json';
-
-const midpoint = () => 0.5;
 
 // ---------------------------------------------------------------------------
 // Sources
@@ -30,7 +28,7 @@ describe('pledge figures', () => {
   });
 });
 
-describe('2026–27 child health aid placeholder', () => {
+describe('2026–27 mother and child health aid placeholder', () => {
   const ph = figures.aid.childHealthODA2026_27;
 
   it('is clearly labelled and not invented', () => {
@@ -40,7 +38,7 @@ describe('2026–27 child health aid placeholder', () => {
   });
 
   it('shows the pending label instead of a number', () => {
-    const ch = childHealthComparison(figures, 4880.40, midpoint);
+    const ch = childHealthComparison(figures, 4880.40);
     expect(ch.now).toBeNull();
     expect(ch.pendingLabel).toBe('Estimate pending ONE data team');
   });
@@ -49,9 +47,9 @@ describe('2026–27 child health aid placeholder', () => {
     // Test-only fixture: reuse the 2022–24 figure so no number is invented
     const { low, high } = figures.aid.childHealthODA;
     const filled = { ...figures, aid: { ...figures.aid, childHealthODA2026_27: { ...figures.aid.childHealthODA2026_27, low, high } } };
-    const ch = childHealthComparison(filled, 4880.40, midpoint);
+    const ch = childHealthComparison(filled, 4880.40);
     expect(ch.now).not.toBeNull();
-    expect(ch.now.yourPerYear).toBeCloseTo(ch.before.yourPerYear, 10);
+    expect(ch.now.yourPerYear).toEqual(ch.before.yourPerYear);
   });
 });
 
@@ -75,15 +73,19 @@ describe('pledges annualised', () => {
   });
 });
 
-describe('UK child health aid before the cuts (midpoint draws)', () => {
-  // £573.85m ÷ vaccine £1.27953 = 448.5m; ÷ bednet £3.74015 = 153.4m
-  const { before } = childHealthComparison(figures, null, midpoint);
+describe('UK mother and child health aid before the cuts', () => {
+  // Core £486.4m, wider £661.3m ÷ vaccine £1.27953 = 380.1m / 516.8m;
+  // ÷ bednet £3.74015 = 130.0m / 176.8m
+  const { before } = childHealthComparison(figures, null);
 
-  it('equals the whole 2022–24 child health budget', () => {
-    expect(before.items[0].p50 / 1e6).toBeCloseTo(448.49, 1);
-    expect(before.items[1].p50 / 1e6).toBeCloseTo(153.43, 1);
-    expect(formatBigCount(before.items[0].p50)).toBe('450 million');
-    expect(formatBigCount(before.items[1].p50)).toBe('150 million');
+  it('is the whole 2022–24 budget, for each estimate', () => {
+    const [vax, net] = before.items;
+    expect(vax.low / 1e6).toBeCloseTo(380.14, 1);
+    expect(vax.high / 1e6).toBeCloseTo(516.83, 1);
+    expect(net.low / 1e6).toBeCloseTo(130.05, 1);
+    expect(net.high / 1e6).toBeCloseTo(176.81, 1);
+    expect(formatBigRange(vax.low, vax.high)).toBe('380–520 million');
+    expect(formatBigRange(net.low, net.high)).toBe('130–180 million');
   });
 
   it('has no personal share without a tax figure', () => {
@@ -101,9 +103,10 @@ describe('£30,000 visitor share', () => {
     expect(T).toBeCloseTo(4880.40, 2);
   });
 
-  it('child health £2.42 a year before; now pending', () => {
-    const ch = childHealthComparison(figures, T, midpoint);
-    expect(formatGbpSmall(ch.before.yourPerYear)).toBe('£2.42');
+  it('mother and child health aid £2.05–£2.79 a year before; now pending', () => {
+    const ch = childHealthComparison(figures, T);
+    expect(formatGbpSmall(ch.before.yourPerYear.low)).toBe('£2.05');
+    expect(formatGbpSmall(ch.before.yourPerYear.high)).toBe('£2.79');
     expect(ch.now).toBeNull();
   });
 

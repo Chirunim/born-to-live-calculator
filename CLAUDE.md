@@ -13,7 +13,9 @@ children through UK aid, shows what that buys, and links to the petition.
   contributions (by channel of delivery); HIGH adds 12220, 13030, 12261
 - E = total expenditure on services (HM Treasury PESA; the HMRC Annual Tax Summary denominator)
 - C = T × childHealthODA ÷ E, converted to items (vaccine doses, bednets, ORS + zinc) using unit costs
-- Monte Carlo (10,000 draws) over LOW/HIGH childHealthODA and any unit-cost ranges; show 10th–90th percentile
+- Two labelled estimates, side by side: "Core mother and child programmes" (LOW) and
+  "Including wider basic health" (HIGH), each with one sentence on what it includes (src/model.js ESTIMATES).
+  One unit cost per item
 - Show a per-day figure (C / 365)
 - Below 1 item a year, show "one [item] every X months" (years above 24 months; "less than one …
   in a lifetime of tax at this salary" above 100 years). Never show "0 [items]"
@@ -30,6 +32,8 @@ children through UK aid, shows what that buys, and links to the petition.
 - Privacy-friendly analytics only (GoatCounter). Never store salary or personal data.
 
 ## Rules
+- Never reintroduce Monte Carlo simulation, random draws, percentiles or probability claims
+  (e.g. "80% of scenarios"). Uncertainty is shown only as the two labelled estimates
 - Wording: "health aid reaching mothers and children" in sentences, "mother and child health aid"
   in short labels. Never "child health" for the aid figure (it includes reproductive health).
   Item names (vaccine doses, bednets, ORS + zinc) and code/key names stay as they are
