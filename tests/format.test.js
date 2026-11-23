@@ -101,6 +101,9 @@ describe('unit costs (UNICEF purchase prices)', () => {
     expect(ors).toMatchObject({ productCode: 'S1561120', packPrice: 7.90, packSize: 100, quantity: 2 });
     expect(zinc).toMatchObject({ productCode: 'S1580020', packPrice: 0.67, packSize: 100, quantity: 10 });
     expect(costs.orsTreatment.courseDefinition.productCode).toBe('S1580022');
+    for (const c of [ors, zinc]) {
+      expect(c._url).toMatch(/^https:\/\/supplyhub\.unicef\.org\/product-detail\?q=[A-Za-z0-9]+$/);
+    }
     expect(unitCostUsd(costs.orsTreatment)).toBeCloseTo(0.225, 10);
   });
 

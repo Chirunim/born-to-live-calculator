@@ -184,8 +184,10 @@
       "_basis": "purchase",
       "courseDefinition": { "productCode": "S1580022", "name": "ORS/zinc co-pack: 2 ORS 1 L sachets + 10 zinc 20 mg tablets" },
       "components": [
-        { "productCode": "S1561120", "name": "ORS low osmolarity, sachet for 1 L", "packPrice": 7.90, "packSize": 100, "quantity": 2 },
-        { "productCode": "S1580020", "name": "Zinc 20 mg tablet", "packPrice": 0.67, "packSize": 100, "quantity": 10 }
+        { "productCode": "S1561120", "name": "ORS low osmolarity, sachet for 1 L", "packPrice": 7.90, "packSize": 100, "quantity": 2,
+          "_url": "https://supplyhub.unicef.org/product-detail?q=tM8rMirChT6hV6DCov6iThhCwvMEIdTQlA8MZBn56Q1XCv0vvg1JHdPsn0cUILFE", "_accessed": "2026-11-22" },
+        { "productCode": "S1580020", "name": "Zinc 20 mg tablet", "packPrice": 0.67, "packSize": 100, "quantity": 10,
+          "_url": "https://supplyhub.unicef.org/product-detail?q=u3MEIlPi4Nzrg7HLYFTWH0MdK6YtGNZ1UYjA6Pt3WQh5oZc9xW9KkmohmMWffmLl", "_accessed": "2026-11-22" }
       ],
       "unit": "USD per full treatment course",
       "itemLabel": "full ORS + zinc treatment (per WHO/UNICEF guidance)",
