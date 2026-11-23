@@ -176,16 +176,6 @@ function renderComparison(taxTotal) {
       <td class="compare-down">${pct(p.changePct)}</td>
     </tr>`).join('');
 
-  // The UK's own published impact statements for its current pledges
-  document.getElementById('cmp-impact').innerHTML = pledges
-    .filter((p) => p.impact)
-    .map((p) => `
-    <blockquote>
-      <p>${escapeHtml(p.impact.text)}</p>
-      <footer>${escapeHtml(p.name)}, ${formatGbpMillions(p.now.total)} for ${p.now.period} ·
-        <a href="${p.impact.url}" target="_blank" rel="noopener">${escapeHtml(p.impact.attribution)}</a></footer>
-    </blockquote>`).join('');
-
   // The visitor's own share
   if (taxTotal == null) return;
   const shareText = ({ low, high }) => `${formatGbpSmall(low)}–${formatGbpSmall(high)}`;
@@ -193,14 +183,9 @@ function renderComparison(taxTotal) {
     ['Mother and child health aid',
       ch.before ? shareText(ch.before.yourPerYear) : '—',
       ch.now ? shareText(ch.now.yourPerYear) : 'Pending'],
-    ...pledges.map((p) => [p.name, formatGbpSmall(p.yourBefore), formatGbpSmall(p.yourNow)]),
   ];
   document.querySelector('#cmp-yours tbody').innerHTML = rows.map(([name, b, n]) => `
     <tr><th scope="row">${name}</th><td>${b}</td><td>${n}</td></tr>`).join('');
-}
-
-function escapeHtml(str) {
-  return String(str).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
 function fmt(n) {

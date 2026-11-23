@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { annualise, pledgeComparison, childHealthComparison, impactStatement } from '../src/compare.js';
+import { annualise, pledgeComparison, childHealthComparison } from '../src/compare.js';
 import { formatGbpMillions, formatGbpSmall } from '../src/format.js';
 import { calculateTax } from '../src/tax.js';
 import figures from '../data/figures.json';
@@ -94,36 +94,6 @@ describe('UK mother and child health aid before the cuts', () => {
   });
 });
 
-describe('UK published impact statements for current pledges', () => {
-  const [gavi, gf] = pledgeComparison(figures);
-
-  it('Gavi: gov.uk press release, quoted in full', () => {
-    expect(gavi.impact.text).toBe('“Today’s pledge will help Gavi in their mission to protect up to 500 million children between 2026 to 2030 and save up to 8 million more lives.”');
-    expect(gavi.impact.url).toBe('https://www.gov.uk/government/news/uk-partners-with-gavi-to-help-save-up-to-eight-million-lives-by-2030');
-    expect(gavi.now).toMatchObject({ total: 1250, period: '2026–2030' });
-  });
-
-  it('Global Fund: Global Fund press release, opening clause with an ellipsis', () => {
-    expect(gf.impact.text).toBe('“Our investment over the next three years will help to save up to 1.3 million lives…”');
-    expect(gf.impact.url).toMatch(/^https:\/\/www\.theglobalfund\.org\/en\/news\/2025\/2025-11-11-/);
-    expect(gf.now).toMatchObject({ total: 850, period: '2026–2028' });
-  });
-
-  it('each statement has a source, publication date and accessed date', () => {
-    for (const key of ['gavi', 'globalFund']) {
-      const i = figures.aid.pledges[key].now.impact;
-      expect(i.attribution).toBeTruthy();
-      expect(i._published).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-      expect(i._accessed).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-    }
-  });
-
-  it('is null when no statement is recorded', () => {
-    expect(impactStatement(undefined)).toBeNull();
-    expect(impactStatement({ quote: 'x.' })).toBeNull();   // no URL, not shown
-  });
-});
-
 // ---------------------------------------------------------------------------
 // The visitor's share — £30,000 rUK, tax £4,880.40
 // ---------------------------------------------------------------------------
@@ -139,11 +109,5 @@ describe('£30,000 visitor share', () => {
     expect(formatGbpSmall(ch.before.yourPerYear.low)).toBe('£2.05');
     expect(formatGbpSmall(ch.before.yourPerYear.high)).toBe('£2.79');
     expect(ch.now).toBeNull();
-  });
-
-  it('Gavi £1.39 → £1.06; Global Fund £1.41 → £1.20', () => {
-    const [gavi, gf] = pledgeComparison(figures, T);
-    expect([gavi.yourBefore, gavi.yourNow, gf.yourBefore, gf.yourNow].map(formatGbpSmall))
-      .toEqual(['£1.39', '£1.06', '£1.41', '£1.20']);
   });
 });

@@ -13,31 +13,9 @@ export function annualise({ total, years }) {
 }
 
 /**
- * The UK's own published impact statement for a pledge, ready to display.
- * The quote is shown exactly as published, in quotation marks; a clause cut short
- * of the full sentence gets an ellipsis.
+ * Gavi and Global Fund pledges, annualised, before vs now (UK-wide only).
  */
-export function impactStatement(impact) {
-  if (!impact || !impact.quote || !impact._url) return null;
-  const complete = /[.!?]$/.test(impact.quote);
-  return {
-    text: `“${impact.quote}${complete ? '' : '…'}”`,
-    attribution: impact.attribution,
-    url: impact._url,
-  };
-}
-
-/**
- * Gavi and Global Fund pledges, annualised, before vs now, with the UK's own
- * published impact statement for the current pledge.
- * yourBefore / yourNow are GBP per year (null when no tax figure given).
- * Both sides use the latest published expenditure on services (E), so the
- * change in your share reflects the change in the pledge alone.
- */
-export function pledgeComparison(figures, taxTotal = null) {
-  const E = figures.aid.expenditureOnServices.value;          // GBP millions
-  const share = (perYear) => (taxTotal == null ? null : taxTotal * perYear / E);
-
+export function pledgeComparison(figures) {
   return Object.entries(figures.aid.pledges)
     .filter(([key]) => !key.startsWith('_'))
     .map(([key, { name, before, now }]) => {
@@ -48,10 +26,7 @@ export function pledgeComparison(figures, taxTotal = null) {
         name,
         before: { perYear: b, total: before.total, period: before.period },
         now:    { perYear: n, total: now.total, period: now.period },
-        impact: impactStatement(now.impact),
         changePct: ((n - b) / b) * 100,
-        yourBefore: share(b),
-        yourNow:    share(n),
       };
     });
 }
