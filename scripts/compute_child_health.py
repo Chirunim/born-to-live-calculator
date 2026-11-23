@@ -14,8 +14,12 @@ HeadlineMeasureofODA is summed directly (no %sector weighting); each project-sec
 row already carries its sector-allocated ODA amount.
 
 Expected: LOW ~486m, HIGH ~661m
+
+Also prints a Muskoka2 preview (data/figures.json muskoka.coefficients); it does not change
+the live figures. Run with --preview to write docs/muskoka2_preview.md.
 """
 
+import json
 import sys
 from pathlib import Path
 
@@ -23,6 +27,7 @@ import pandas as pd
 
 ROOT     = Path(__file__).resolve().parent.parent
 ODS_PATH = ROOT / "data" / "raw" / "Data-underlying-SID-2017-2024.ods"
+FIGURES  = ROOT / "data" / "figures.json"
 
 YEARS      = {2022, 2023, 2024}
 LOW_CODES  = {13020, 12240, 12250, 12262}
@@ -33,6 +38,9 @@ HIGH_CODES = LOW_CODES | HIGH_EXTRA
 # in FCDO channel data. We match this directly; IFFIM (International Finance Facility
 # for Immunisation) is a separate bond-issuing vehicle and not included here.
 GAVI_CHANNEL_PATTERN = r"global alliance for vaccines"
+GLOBAL_FUND_PATTERN  = r"global fund"
+IFFIM_CHANNEL_PATTERN = r"international finance facility for immunisation"
+PREVIEW_PATH = ROOT / "docs" / "muskoka2_preview.md"
 
 
 def load_data() -> pd.DataFrame:
@@ -134,6 +142,96 @@ def main() -> None:
     print(f'  "low":  {round(avg_low, 1)},')
     print(f'  "high": {round(avg_high, 1)}')
 
+    muskoka(df, year_col, oda_col, purpose_col, channel_col, bilateral_col,
+            preview_path=PREVIEW_PATH if "--preview" in sys.argv else None)
+
+
+def muskoka(df, year_col, oda_col, purpose_col, channel_col, bilateral_col, preview_path=None) -> None:
+    """Print the 2022-24 average with and without Muskoka2 shares (figures.json muskoka.coefficients).
+    Each row goes to one bucket, in this order: Gavi core, IFFIm core (multilateral rows on those
+    channels), Global Fund channel (pending, left out), then sector code.
+    Prints only; does not change the live figures. With preview_path, also writes a Markdown table."""
+    figs    = json.loads(FIGURES.read_text(encoding="utf-8"))
+    coef    = figs["muskoka"]["coefficients"]
+    live    = figs["aid"]["childHealthODA"]
+    shares  = {int(k): v for k, v in coef["sectorCodes"].items()}
+    pending = {int(k): v for k, v in coef["pending"]["sectorCodes"].items()}
+    iffim   = coef["iffimCore"]
+    n_years = len(YEARS)
+
+    ch    = df[channel_col].astype(str) if channel_col else pd.Series("", index=df.index)
+    multi = (df[bilateral_col].astype(str).str.lower().str.contains("multilateral", na=False)
+             if bilateral_col else pd.Series(True, index=df.index))
+    gavi  = ch.str.contains(GAVI_CHANNEL_PATTERN, case=False, na=False) & multi
+    iff   = ch.str.contains(IFFIM_CHANNEL_PATTERN, case=False, na=False) & multi & ~gavi
+    gf    = ch.str.contains(GLOBAL_FUND_PATTERN, case=False, na=False) & ~gavi & ~iff
+    rest  = df[~gavi & ~iff & ~gf]
+
+    avg = lambda rows: rows[oda_col].sum() / 1_000 / n_years   # GBP millions per year
+
+    # (label, without, share, note)
+    lines = [("Gavi core contributions", avg(df[gavi]), coef["gaviCore"], ""),
+             ("IFFIm core contributions", avg(df[iff]), iffim["value"], iffim["_status"])]
+    lines += [(str(code), avg(rest[rest[purpose_col] == code]), share, "")
+              for code, share in sorted(shares.items(), key=lambda kv: (-kv[1], kv[0]))]
+    total_raw  = sum(raw for _, raw, _, _ in lines)
+    total_with = sum(raw * share for _, raw, share, _ in lines)
+
+    left_out = [(f"{code} {name}", avg(rest[rest[purpose_col] == code])) for code, name in pending.items()]
+    left_out.append((f"Global Fund ({coef['pending']['channels']['globalFund']})", avg(df[gf])))
+    other = avg(rest[~rest[purpose_col].isin(set(shares) | set(pending))])
+
+    print(f"\n{'='*72}\nMuskoka2 shares, 2022-2024 average, GBP millions per year")
+    print(f"Source: {coef['_source']} ({coef['_year']})\n")
+    print(f"{'Item':<44}{'Without':>9}{'Share':>8}{'With':>9}")
+    for label, raw, share, note in lines:
+        print(f"{label:<44}{raw:9.1f}{share:8.1%}{raw*share:9.1f}" + (f"  ({note})" if note else ""))
+    print(f"{'Total with Muskoka2 shares':<44}{total_raw:9.1f}{'':>8}{total_with:9.1f}")
+    print(f"\nLeft out: {coef['pending']['_status']} (TODO)")
+    for label, raw in left_out:
+        print(f"  {label:<42}{raw:9.1f}")
+    print(f"\n{'All other codes (0%)':<44}{other:9.1f}")
+    for name, mask in [("Gavi", gavi), ("IFFIm", iff)]:
+        codes = sorted(int(c) for c in df.loc[mask, purpose_col].dropna().unique())
+        print(f"{name} core rows by sector code: {codes}")
+
+    if preview_path:
+        md = [
+            "# Muskoka2 preview: UK health aid reaching mothers and children",
+            "",
+            "Preview only. The calculator's live figures are unchanged "
+            f"(core £{live['low']}m, wider £{live['high']}m a year).",
+            "",
+            f"- **Data:** FCDO Statistics on International Development, data underlying SID 2017–2024, "
+            f"average of 2022, 2023 and 2024, £ millions a year.",
+            f"- **Shares:** {coef['_source']}, {coef['_year']}. <{coef['_url']}> (accessed {coef['_accessed']}).",
+            "- **Method:** each row counts once. Gavi and IFFIm core contributions are matched by channel of "
+            "delivery (multilateral rows); Global Fund rows by channel; everything else by sector code. "
+            "Codes not listed count at 0%.",
+            "- Generated by `scripts/compute_child_health.py --preview`.",
+            "",
+            "## With and without Muskoka2 shares",
+            "",
+            "| Item | Without (£m) | Share | With (£m) | Note |",
+            "|---|---:|---:|---:|---|",
+        ]
+        md += [f"| {label} | {raw:,.1f} | {share:.1%} | {raw*share:,.1f} | {note} |"
+               for label, raw, share, note in lines]
+        md += [f"| **Total** | **{total_raw:,.1f}** | | **{total_with:,.1f}** | |", "",
+               f"All other sector codes count at 0% (£{other:,.1f}m a year without shares).", "",
+               f"## Left out for now: {coef['pending']['_status']}", "",
+               "Not in the total above until the ONE data team supplies shares.", "",
+               "| Item | Without (£m) |", "|---|---:|"]
+        md += [f"| {label} | {raw:,.1f} |" for label, raw in left_out]
+        by_year = df[gavi].groupby(year_col)[oda_col].sum() / 1_000
+        gavi_years = ", ".join(f"{int(y)}: £{by_year.get(y, 0.0):,.1f}m" for y in sorted(YEARS))
+        md += ["", "## Notes", "",
+               f"- Gavi core contributions by year ({gavi_years}). There is no 2022 row in the FCDO data, "
+               "which lowers the three-year average.",
+               f"- IFFIm is counted at Gavi's {iffim['value']:.0%}: {iffim['_status']}.", ""]
+        preview_path.parent.mkdir(parents=True, exist_ok=True)
+        preview_path.write_text("\n".join(md), encoding="utf-8")
+        print(f"\nWrote {preview_path.relative_to(ROOT)}")
 
 if __name__ == "__main__":
     main()
