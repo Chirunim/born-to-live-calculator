@@ -51,6 +51,18 @@ Not in the total above until the ONE data team supplies shares.
 | 51010 General budget support | 40.5 |
 | Global Fund (Global Fund to Fight AIDS, Tuberculosis and Malaria) | 464.2 |
 
+### Why these are left out
+
+Muskoka2 gives most codes one fixed share. For these five the flow chart says "varies": the share reaching mothers and children depends on where the money goes and who carries the disease there. Using any number before the ONE data team supplies the shares would mean inventing one. How each share would be built (to be confirmed by the ONE data team):
+
+- **Malaria (12262):** the share of each country's malaria burden in children under 5 and pregnant women.
+- **HIV (13040):** the share going to mothers, children and preventing mother-to-child transmission.
+- **TB (12263):** the child and maternal share of TB in each country (most TB is in adults).
+- **General budget support (51010):** not health money. It would need each government's health share of spending, then the mother and child share of that.
+- **Global Fund:** covers HIV, TB and malaria for all ages. Its share would come from its split across the three diseases, then the mother and child share of each.
+
+**What this means for the total.** Leaving them out counts them at 0%, so the £827.4m total is likely too low. Counting all five at 100% would add £521.2m, which is far too high because much of this spending reaches adults. The true figure is in between. The Global Fund (£464.2m) decides most of it; the other four add £57.0m between them even at 100%.
+
 ## Notes
 
 - Gavi core contributions by year (2022: £0.0m, 2023: £234.0m, 2024: £604.0m). There is no 2022 row in the FCDO data, which lowers the three-year average.

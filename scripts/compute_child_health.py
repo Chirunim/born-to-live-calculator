@@ -223,6 +223,27 @@ def muskoka(df, year_col, oda_col, purpose_col, channel_col, bilateral_col, prev
                "Not in the total above until the ONE data team supplies shares.", "",
                "| Item | Without (£m) |", "|---|---:|"]
         md += [f"| {label} | {raw:,.1f} |" for label, raw in left_out]
+        lo_total = sum(raw for _, raw in left_out)
+        gf_raw   = left_out[-1][1]
+        md += ["", "### Why these are left out", "",
+               "Muskoka2 gives most codes one fixed share. For these five the flow chart says \"varies\": "
+               "the share reaching mothers and children depends on where the money goes and who carries "
+               "the disease there. Using any number before the ONE data team supplies the shares would mean "
+               "inventing one. How each share would be built (to be confirmed by the ONE data team):", "",
+               "- **Malaria (12262):** the share of each country's malaria burden in children under 5 and "
+               "pregnant women.",
+               "- **HIV (13040):** the share going to mothers, children and preventing mother-to-child "
+               "transmission.",
+               "- **TB (12263):** the child and maternal share of TB in each country (most TB is in adults).",
+               "- **General budget support (51010):** not health money. It would need each government's "
+               "health share of spending, then the mother and child share of that.",
+               "- **Global Fund:** covers HIV, TB and malaria for all ages. Its share would come from its "
+               "split across the three diseases, then the mother and child share of each.", "",
+               f"**What this means for the total.** Leaving them out counts them at 0%, so the "
+               f"£{total_with:,.1f}m total is likely too low. Counting all five at 100% would add "
+               f"£{lo_total:,.1f}m, which is far too high because much of this spending reaches adults. "
+               f"The true figure is in between. The Global Fund (£{gf_raw:,.1f}m) decides most of it; the "
+               f"other four add £{lo_total - gf_raw:,.1f}m between them even at 100%."]
         by_year = df[gavi].groupby(year_col)[oda_col].sum() / 1_000
         gavi_years = ", ".join(f"{int(y)}: £{by_year.get(y, 0.0):,.1f}m" for y in sorted(YEARS))
         md += ["", "## Notes", "",
