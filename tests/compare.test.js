@@ -28,19 +28,23 @@ describe('pledge figures', () => {
   });
 });
 
-describe('2026–27 mother and child health aid placeholder', () => {
-  const ph = figures.aid.childHealthODA2026_27;
+describe('2026–27 mother and child health aid (scaled by the overall aid cut)', () => {
+  const nowOda = figures.aid.childHealthODA2026_27;
 
-  it('is clearly labelled and not invented', () => {
-    expect(ph.low).toBe('TODO');
-    expect(ph.high).toBe('TODO');
-    expect(ph.displayLabel).toBe('Estimate pending ONE data team');
+  it('is computed from GNI shares, not typed in, and is sourced', () => {
+    expect(nowOda.low).toBeUndefined();
+    expect(nowOda.high).toBeUndefined();
+    expect(nowOda.scaling).toMatchObject({ gniShareBefore: 0.5, gniShareNow: 0.37 });
+    expect(nowOda._url).toBe('https://commonslibrary.parliament.uk/research-briefings/cbp-10243/');
+    expect(nowOda._accessed).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 
-  it('shows the pending label instead of a number', () => {
-    const ch = childHealthComparison(figures, 4880.40);
-    expect(ch.now).toBeNull();
-    expect(ch.pendingLabel).toBe('Estimate pending ONE data team');
+  it('cuts 2022–24 by 26%: £486.4m → £360m, £661.3m → £489m, labelled as an assumption', () => {
+    const ch = childHealthComparison(figures, null);
+    expect(ch.now.low).toBeCloseTo(486.4 * 0.74, 6);
+    expect(ch.now.high).toBeCloseTo(661.3 * 0.74, 6);
+    expect([ch.now.low, ch.now.high].map(formatGbpMillions)).toEqual(['£360m', '£489m']);
+    expect(ch.nowNote).toBe('Assumes the same 26% cut as all UK aid (0.5% to 0.37% of national income)');
   });
 
   it('fills in automatically once a figure is added', () => {
@@ -104,10 +108,11 @@ describe('£30,000 visitor share', () => {
     expect(T).toBeCloseTo(4880.40, 2);
   });
 
-  it('mother and child health aid £2.05–£2.79 a year before; now pending', () => {
+  it('mother and child health aid £2.05–£2.79 a year before; £1.52–£2.07 now (assumed)', () => {
     const ch = childHealthComparison(figures, T);
     expect(formatGbpSmall(ch.before.yourPerYear.low)).toBe('£2.05');
     expect(formatGbpSmall(ch.before.yourPerYear.high)).toBe('£2.79');
-    expect(ch.now).toBeNull();
+    expect(formatGbpSmall(ch.now.yourPerYear.low)).toBe('£1.52');
+    expect(formatGbpSmall(ch.now.yourPerYear.high)).toBe('£2.07');
   });
 });

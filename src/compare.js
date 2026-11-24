@@ -35,8 +35,10 @@ export function pledgeComparison(figures) {
  * UK mother and child health aid per year, before vs now, in GBP, for each of the two
  * estimates (core, and including wider basic health). No item counts: dividing the
  * whole budget by purchase prices would overstate real impact.
- * A side is null while its figure is still TODO — the 2026–27 side stays null
- * until the ONE data team's estimate is added to figures.json.
+ * A side is null while its figure is still TODO.
+ * 2026–27: either low/high from figures.json, or (until the ONE data team's estimate
+ * arrives) the 2022–24 figure scaled by the overall cut in UK aid as a share of GNI.
+ * nowNote describes that assumption for display; null when real figures are used.
  */
 export function childHealthComparison(figures, taxTotal = null) {
   const E = figures.aid.expenditureOnServices.value;          // GBP millions
@@ -51,9 +53,19 @@ export function childHealthComparison(figures, taxTotal = null) {
     };
   };
 
+  const before = figures.aid.childHealthODA;
+  const { gniShareBefore: gb, gniShareNow: gn } = nowOda?.scaling ?? {};
+  const scaled = !isNum(nowOda?.low) && isNum(gb) && isNum(gn) && gb > 0;
+  const nowFigures = scaled ? { low: before.low * gn / gb, high: before.high * gn / gb } : nowOda;
+  const now = side(nowFigures);
+
   return {
-    before: side(figures.aid.childHealthODA),
-    now: side(nowOda),
+    before: side(before),
+    now,
+    nowNote: scaled && now
+      ? `Assumes the same ${Math.round((1 - gn / gb) * 100)}% cut as all UK aid ` +
+        `(${gb}% to ${gn}% of national income)`
+      : null,
     pendingLabel: nowOda?.displayLabel ?? 'Estimate pending',
   };
 }

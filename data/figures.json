@@ -82,15 +82,18 @@
       "unit": "GBP millions"
     },
     "childHealthODA2026_27": {
-      "_description": "Estimated UK health aid reaching mothers and children for 2026–27, same definition as childHealthODA (LOW/HIGH sector codes + Gavi core contributions). Drives the 'Now' side of the Before vs Now view.",
-      "_status": "PLACEHOLDER — estimate pending ONE data team. Do not fill with an invented number. Replace low/high with the ONE data team's estimate and add _source, _url and _accessed.",
-      "_source": "TODO — ONE data team",
-      "_url": "TODO",
+      "_description": "Estimated UK health aid reaching mothers and children for 2026–27. Drives the 'Now' side of the Before vs Now view.",
+      "_status": "ASSUMPTION, not a published figure. The 2022–24 figure (childHealthODA) is cut by the same proportion as all UK aid: 0.5% of GNI before the cuts to 0.37% in 2026/27. low/high are computed in src/compare.js from these shares, never typed in. Gavi and Global Fund support is cut by more than average, so this probably overstates 2026–27. Replace with the ONE data team's estimate when it arrives.",
+      "_basis": "scaled by overall UK aid cut",
+      "_source": "House of Commons Library — UK aid: Reducing spending to 0.3% of GNI by 2027/28 (CBP-10243)",
+      "_url": "https://commonslibrary.parliament.uk/research-briefings/cbp-10243/",
       "_year": "2026-27",
-      "_accessed": "TODO",
-      "displayLabel": "Estimate pending ONE data team",
-      "low": "TODO",
-      "high": "TODO",
+      "_accessed": "2026-11-24",
+      "scaling": {
+        "_note": "Percent of gross national income (0.5 = 0.5%).",
+        "gniShareBefore": 0.5,
+        "gniShareNow": 0.37
+      },
       "unit": "GBP millions"
     },
     "pledges": {

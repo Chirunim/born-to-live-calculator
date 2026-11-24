@@ -164,7 +164,7 @@ function renderComparison(taxTotal) {
   document.getElementById('cmp-oda-before-detail').textContent = ch.before ? RANGE_NOTE : '';
   document.getElementById('cmp-oda-now-cell').classList.toggle('pending', !ch.now);
   document.getElementById('cmp-oda-now').textContent = ch.now ? odaText(ch.now) : ch.pendingLabel;
-  document.getElementById('cmp-oda-now-detail').textContent = ch.now ? RANGE_NOTE : '';
+  document.getElementById('cmp-oda-now-detail').textContent = ch.now ? (ch.nowNote ?? RANGE_NOTE) : '';
 
   // Pledges
   const pct = (p) => `${p > 0 ? '+' : p < 0 ? '−' : ''}${Math.abs(Math.round(p))}%`;

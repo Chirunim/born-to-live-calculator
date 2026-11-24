@@ -30,8 +30,10 @@ children through UK aid, shows what that buys, and links to the petition.
   it into item counts (overstates impact). Pledges table (Before / Now / Change) is UK-wide only.
   "Your share" shows mother and child health aid only. Item equivalents only for the visitor's share,
   labelled "roughly equivalent to". Gavi/Global Fund pledges annualised
-  (total ÷ years). 2026–27 mother and child health aid is a placeholder ("estimate pending ONE data team",
-  aid.childHealthODA2026_27) until the ONE data team supplies it. Never fill it with an invented number
+  (total ÷ years). 2026–27 mother and child health aid (aid.childHealthODA2026_27) is, by the user's decision,
+  the 2022–24 figure scaled by the overall UK aid cut (0.5% → 0.37% of GNI, House of Commons Library
+  CBP-10243), computed in src/compare.js and always labelled as an assumption. Replace it with the
+  ONE data team's estimate when supplied. Never type in any other unsourced number
 
 ## A/B test
 - Randomly assign visitors to "numbers-led" or "story-led" result
