@@ -141,61 +141,6 @@
     }
   },
 
-  "muskoka": {
-    "coefficients": {
-      "_description": "Muskoka2 fixed coefficients: the share of each sector code's ODA counted as reproductive, maternal, newborn and child health. Applied in scripts/compute_child_health.py. Not yet used in the live figures.",
-      "_source": "Countdown to 2030 / LSHTM — Muskoka2 method flow chart, webinar slides",
-      "_url": "https://datacompass.lshtm.ac.uk/id/eprint/2273/",
-      "_year": "July 2021",
-      "_accessed": "2026-11-23",
-      "_note": "Shares are fractions (0.40 = 40%). Any sector code not listed counts at 0.",
-      "gaviCore": 0.91,
-      "iffimCore": {
-        "_status": "assumed – confirm with ONE data team",
-        "_note": "IFFIm (International Finance Facility for Immunisation) core contributions, matched by ChannelofDelivery (multilateral rows). Counted at Gavi's share because IFFIm funds Gavi.",
-        "value": 0.91
-      },
-      "sectorCodes": {
-        "12240": 1.0,
-        "13020": 1.0,
-        "13030": 1.0,
-        "13081": 1.0,
-        "12110": 0.40,
-        "12181": 0.40,
-        "12191": 0.40,
-        "12220": 0.40,
-        "12230": 0.40,
-        "12250": 0.40,
-        "12261": 0.40,
-        "12281": 0.40,
-        "13010": 0.40,
-        "14030": 0.15,
-        "14031": 0.15,
-        "14032": 0.15,
-        "72010": 0.044,
-        "72050": 0.021,
-        "72040": 0.019,
-        "74020": 0.015,
-        "73010": 0.014,
-        "12182": 0
-      },
-      "defaultShare": 0,
-      "pending": {
-        "_status": "varies – pending ONE data team",
-        "_todo": "TODO — ONE data team to supply shares for these. Left out of the Muskoka2 total until then.",
-        "sectorCodes": {
-          "12262": "Malaria control",
-          "13040": "STD control including HIV/AIDS",
-          "12263": "Tuberculosis control",
-          "51010": "General budget support"
-        },
-        "channels": {
-          "globalFund": "Global Fund to Fight AIDS, Tuberculosis and Malaria"
-        }
-      }
-    }
-  },
-
   "costs": {
     "_currency": "USD",
     "_basisNote": "All three are UNICEF Supply Division purchase prices. They exclude delivery (shipping, storage, distribution and health workers' time), so the real cost of reaching a child is higher.",
